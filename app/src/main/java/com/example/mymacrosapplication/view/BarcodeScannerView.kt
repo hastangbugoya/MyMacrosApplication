@@ -2,12 +2,12 @@ package com.example.mymacrosapplication.view
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.media.Image
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -33,7 +33,6 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import java.nio.file.WatchEvent
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
@@ -56,7 +55,6 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
     }
 }
 
-@OptIn(ExperimentalGetImage::class)
 @Composable
 fun CameraPreview(
     context: Context,
@@ -85,9 +83,9 @@ fun CameraPreview(
                 val scanner = BarcodeScanning.getClient()
 
                 analysis.setAnalyzer(Dispatchers.Default.asExecutor()) { imageProxy: ImageProxy ->
-                    val mediaImage = imageProxy.image
+                    val mediaImage = imageProxy
                     if (mediaImage != null) {
-                        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+                        val image = InputImage.fromMediaImage(mediaImage as Image, imageProxy.imageInfo.rotationDegrees)
                         scanner.process(image)
                             .addOnSuccessListener { barcodes ->
                                 for (barcode in barcodes) {
@@ -123,4 +121,8 @@ fun CameraPreview(
         modifier = Modifier
             .fillMaxWidth()
     )
+}
+
+private fun ImageProxy.close() {
+    TODO("Not yet implemented")
 }
