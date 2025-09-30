@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.dagger.hilt.android")
+    kotlin("kapt")
 }
 
 android {
@@ -56,4 +58,21 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // Hilt runtime
+    implementation("com.google.dagger:hilt-android:2.57.2")
+    // Hilt compiler
+    kapt("com.google.dagger:hilt-compiler:2.57.2")
+    // (Optional) Hilt + Jetpack integration (e.g. @HiltViewModel)
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    // CameraX
+    val cameraxVersion = "1.5.0"
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:1.3.4")
+    // ML Kit Barcode Scanner
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 }
