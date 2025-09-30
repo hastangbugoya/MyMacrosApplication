@@ -122,7 +122,3 @@ fun CameraPreview(
             .fillMaxWidth()
     )
 }
-
-private fun ImageProxy.close() {
-    TODO("Not yet implemented")
-}

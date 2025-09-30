@@ -59,6 +59,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // Icons?
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
+    implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
     // Hilt runtime
     implementation("com.google.dagger:hilt-android:2.57.2")
     // Hilt compiler

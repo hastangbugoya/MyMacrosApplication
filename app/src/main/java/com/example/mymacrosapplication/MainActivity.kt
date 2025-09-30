@@ -26,7 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
+import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +77,15 @@ fun MainScreen(innerPadding: PaddingValues) {
             contentAlignment = Alignment.Center
         ) {
             Greeting(name = items[selectedItem])
+            when(selectedItem) {
+                0 -> Greeting(name = items[selectedItem])
+                1 -> {
+                    CameraPermissionBottomSheet {
+                        Greeting(name = items[selectedItem])
+                    }
+                }
+                else -> Greeting(name = items[selectedItem])
+            }
         }
     }
 }
