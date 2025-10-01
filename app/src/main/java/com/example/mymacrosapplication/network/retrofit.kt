@@ -19,7 +19,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://api.nal.usda.gov/") // placeholder
+            .baseUrl("https://api.nal.usda.gov/fdc/") // placeholder
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
