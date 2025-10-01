@@ -1,5 +1,8 @@
 package com.example.mymacrosapplication.model
 
 data class DataType(
-    val Branded: Int
+    val Branded: Int,
+    val Experimental: Int? = null,
+    val Foundation: Int? = null,
+    val dataType: String? = null
 )

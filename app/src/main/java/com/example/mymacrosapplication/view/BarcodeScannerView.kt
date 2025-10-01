@@ -14,6 +14,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -34,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.mymacrosapplication.view.input.SearchBar
 import com.example.mymacrosapplication.viewmodel.BarcodeViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -47,24 +50,41 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
     val barcodeValue by viewModel.barcodeValue.collectAsState()
     val foodResult by viewModel.foodResult.collectAsState()
     Log.d("Meow", "BarcodeScannerScreen")
-    Column(modifier = Modifier.fillMaxSize()) {
-        Spacer(modifier = Modifier.height(100.dp).fillMaxWidth())
-        CameraPreview(
-            context = context,
-            onBarcodeDetected = { code ->
-                viewModel.setBarcode(code, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")
+    Column(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+        Box (
+            modifier = Modifier.
+            fillMaxWidth().
+            height(65.dp).
+            background(Color.Red)
+        ) {
+            SearchBar(label = "Search description") { searchString ->
+                viewModel.setBarcode(searchString, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")
             }
-        )
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Box (
+            modifier = Modifier.height(85.dp).
+            clipToBounds().
+            background(Color.Blue).
+            padding(0.dp)
+        ){
+            CameraPreview(
+                context = context,
+                onBarcodeDetected = { code ->
+                    viewModel.setBarcode(code, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")
+                }
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Scanned : ${barcodeValue ?: "No barcode yet"}")
-        Button(onClick = {viewModel.setBarcode("", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")}) {
+        Text(text = "Scanned : ${barcodeValue ?: "No barcode yet"}", modifier = Modifier.background(Color.Magenta))
+        Button(onClick = {viewModel.setBarcode(null, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")}) {
             Text("Retry")
         }
         Button(onClick = {viewModel.setBarcode("812130020861", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")}) {
             Text("Barcode: 812130020861")
         }
         foodResult?.let {
-            Text(text = "First match: ${it.foods.firstOrNull()?.toString() ?: "No match"}", modifier = Modifier.background(
+            Text(text = "First match: ${it.foods?.firstOrNull()?.toString() ?: "No match"}", modifier = Modifier.background(
                 Color.Yellow).wrapContentHeight())
         }
     }
@@ -80,11 +100,10 @@ fun CameraPreview(
         factory = { context ->
             val previewView = PreviewView(context).apply {
                 layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
                 )
             }
-
             val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
@@ -133,10 +152,6 @@ fun CameraPreview(
             }, ContextCompat.getMainExecutor(context))
 
             previewView
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .padding(20.dp)
+        }
     )
 }

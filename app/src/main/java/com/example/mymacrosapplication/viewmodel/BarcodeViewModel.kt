@@ -19,16 +19,21 @@ class BarcodeViewModel @Inject constructor(private val repository: NutritionRepo
     private val _foodResult = MutableStateFlow<USDAResponse?>(null)
     val foodResult : StateFlow<USDAResponse?> = _foodResult
 
-    fun setBarcode(value: String, apiKey: String) {
+    fun setBarcode(value: String?, apiKey: String) {
         _barcodeValue.value = value
-        searchFood(value, apiKey)
+        value?.let {
+            searchFood(value, apiKey)
+        } ?: run {
+            _foodResult.value = null
+        }
+
     }
     private fun searchFood(query: String, apiKey: String) {
         viewModelScope.launch {
             try {
                 val result = repository.searchFoods(query, apiKey)
                 _foodResult.value = result
-                Log.d("Meow", result.foods.size.toString())
+                Log.d("Meow", "Found (${result.foods?.size ?: 0}) matches")
             } catch (e: Exception) {
                 _foodResult.value = null
                 e.printStackTrace()

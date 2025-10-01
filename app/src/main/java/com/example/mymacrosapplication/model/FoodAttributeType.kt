@@ -1,8 +1,8 @@
 package com.example.mymacrosapplication.model
 
 data class FoodAttributeType(
-    val description: String,
-    val foodAttributes: List<FoodAttributeX>,
-    val id: Int,
-    val name: String
+    val description: String? = null,
+    val foodAttributes: List<FoodAttributeX>? = listOf(),
+    val id: Int? = null,
+    val name: String? = null
 )
