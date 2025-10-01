@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,8 +41,9 @@ import kotlinx.coroutines.asExecutor
 fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
     val context = LocalContext.current
     val barcodeValue by viewModel.barcodeValue.collectAsState()
-
+    Log.d("Meow", "BarcodeScannerScreen")
     Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(modifier = Modifier.height(20.dp).padding(20.dp))
         CameraPreview(
             context = context,
             onBarcodeDetected = { code ->
@@ -55,21 +58,22 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
     }
 }
 
+@OptIn(ExperimentalGetImage::class)
 @Composable
 fun CameraPreview(
     context: Context,
     onBarcodeDetected: (String) -> Unit
 ) {
     AndroidView(
-        factory = { ctx ->
-            val previewView = PreviewView(ctx).apply {
+        factory = { context ->
+            val previewView = PreviewView(context).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
             }
 
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
                 val preview = androidx.camera.core.Preview.Builder().build().also {
@@ -83,7 +87,7 @@ fun CameraPreview(
                 val scanner = BarcodeScanning.getClient()
 
                 analysis.setAnalyzer(Dispatchers.Default.asExecutor()) { imageProxy: ImageProxy ->
-                    val mediaImage = imageProxy
+                    val mediaImage = imageProxy.image
                     if (mediaImage != null) {
                         val image = InputImage.fromMediaImage(mediaImage as Image, imageProxy.imageInfo.rotationDegrees)
                         scanner.process(image)
@@ -114,11 +118,13 @@ fun CameraPreview(
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-            }, ContextCompat.getMainExecutor(ctx))
+            }, ContextCompat.getMainExecutor(context))
 
             previewView
         },
         modifier = Modifier
             .fillMaxWidth()
+            .height(100.dp)
+            .padding(20.dp)
     )
 }

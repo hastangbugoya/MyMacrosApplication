@@ -20,13 +20,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
+import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
+import com.example.mymacrosapplication.viewmodel.BarcodeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,10 +50,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(innerPadding: PaddingValues) {
+fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
-
+    val context = LocalContext.current
+    var hasCameraPermission by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -81,7 +87,7 @@ fun MainScreen(innerPadding: PaddingValues) {
                 0 -> Greeting(name = items[selectedItem])
                 1 -> {
                     CameraPermissionBottomSheet {
-                        Greeting(name = items[selectedItem])
+                        BarcodeScannerScreen(viewModel)
                     }
                 }
                 else -> Greeting(name = items[selectedItem])
