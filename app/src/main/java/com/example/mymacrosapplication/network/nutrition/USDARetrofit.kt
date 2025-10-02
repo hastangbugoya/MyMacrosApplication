@@ -1,20 +1,19 @@
-package com.example.mymacrosapplication.network
+package com.example.mymacrosapplication.network.nutrition
 
-import com.example.mymacrosapplication.model.USDAResponse
+import com.example.mymacrosapplication.model.nutrition.USDAResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 import javax.inject.Singleton
-import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit =

@@ -1,11 +1,10 @@
-package com.example.mymacrosapplication.viewmodel
+package com.example.mymacrosapplication.viewmodel.nutrition
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mymacrosapplication.model.USDAResponse
-import com.example.mymacrosapplication.network.NutritionRepository
-import com.example.mymacrosapplication.view.BarcodeScannerScreen
+import com.example.mymacrosapplication.model.nutrition.USDAResponse
+import com.example.mymacrosapplication.network.nutrition.NutritionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +16,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class BarcodeViewModel @Inject constructor(private val repository: NutritionRepository) : ViewModel() {
+class BarcodeViewModel @Inject constructor(private val repository: NutritionRepository) :
+    ViewModel() {
 
     val intent = Channel<BarcodeIntent>(Channel.UNLIMITED)
 
@@ -27,7 +27,7 @@ class BarcodeViewModel @Inject constructor(private val repository: NutritionRepo
     val barcodeValue: StateFlow<String?> = _barcodeValue
 
     private val _foodResult = MutableStateFlow<USDAResponse?>(null)
-    val foodResult : StateFlow<USDAResponse?> = _foodResult
+    val foodResult: StateFlow<USDAResponse?> = _foodResult
 
     fun setBarcode(value: String?, apiKey: String) {
         _barcodeValue.value = value
@@ -53,6 +53,7 @@ class BarcodeViewModel @Inject constructor(private val repository: NutritionRepo
                         Log.d("Meow", "viewModel > when(intent) > SetBarCode ? $intent")
                         setBarcode(intent.code, intent.apiKey)
                     }
+
                     is BarcodeIntent.SearchFood -> {
                         Log.d("Meow", "viewModel > when(intent) > SearchFood ? $intent")
                         searchFood(intent.query, intent.apiKey)

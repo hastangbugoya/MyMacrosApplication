@@ -1,6 +1,4 @@
-package com.example.mymacrosapplication.model
-
-import com.example.mymacrosapplication.model.test.FoodAttributeType
+package com.example.mymacrosapplication.model.nutrition
 
 data class Food(
     val additionalDescriptions: String? = "",
@@ -14,7 +12,7 @@ data class Food(
     val discontinuedDate: String? = null,
     val fdcId: Int? = 0,
     val finalFoodInputFoods: List<FinalFoodInputFood>? = listOf(),
-    val foodAttributeTypes: List<com.example.mymacrosapplication.model.FoodAttributeType>? = listOf(),
+    val foodAttributeTypes: List<FoodAttributeType>? = listOf(),
     val foodAttributes: List<FoodAttributeX>? = listOf(),
     val foodCategory: String? = null,
     val foodMeasures: List<Any?>? = listOf(),

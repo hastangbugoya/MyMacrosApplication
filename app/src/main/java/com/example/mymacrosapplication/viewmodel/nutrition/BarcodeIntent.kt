@@ -1,4 +1,4 @@
-package com.example.mymacrosapplication.viewmodel
+package com.example.mymacrosapplication.viewmodel.nutrition
 
 sealed class BarcodeIntent {
     data class SetBarcode(val code: String?, val apiKey: String) : BarcodeIntent()

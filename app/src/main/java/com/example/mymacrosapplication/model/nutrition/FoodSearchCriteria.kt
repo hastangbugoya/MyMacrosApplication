@@ -1,4 +1,4 @@
-package com.example.mymacrosapplication.model
+package com.example.mymacrosapplication.model.nutrition
 
 data class FoodSearchCriteria(
     val generalSearchInput: String? = null,

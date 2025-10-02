@@ -23,13 +23,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -48,18 +46,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
+import com.example.mymacrosapplication.ui.theme.MainButtonColors
 import com.example.mymacrosapplication.view.input.SearchBar
-import com.example.mymacrosapplication.viewmodel.BarcodeIntent
-import com.example.mymacrosapplication.viewmodel.BarcodeViewModel
+import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeIntent
+import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
-import com.example.mymacrosapplication.ui.theme.MainButtonColors
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
@@ -69,35 +66,47 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
     val foodResult by viewModel.foodResult.collectAsState()
     val scope = rememberCoroutineScope()
     Log.d("Meow", "BarcodeScannerScreen")
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(10.dp)) {
-        Box (
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
+    ) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(65.dp)
         ) {
             SearchBar(label = "Search by description") { searchString ->
                 Log.d("Meow", "SearchBar > callback from searchbar > searchString: $searchString")
-                 scope.launch {
-                    viewModel.intent.send(BarcodeIntent.SearchFood(searchString, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"))
+                scope.launch {
+                    viewModel.intent.send(
+                        BarcodeIntent.SearchFood(
+                            searchString,
+                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
+                        )
+                    )
                 }
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Box (
+        Box(
             modifier = Modifier
                 .height(85.dp)
                 .clipToBounds()
                 .background(Color.Blue)
                 .padding(0.dp)
                 .border(3.dp, Color(0xff691b1e))
-        ){
+        ) {
             CameraPreview(
                 context = context,
                 onBarcodeDetected = { code ->
                     scope.launch {
-                        viewModel.intent.send(BarcodeIntent.SetBarcode(code, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"))
+                        viewModel.intent.send(
+                            BarcodeIntent.SetBarcode(
+                                code,
+                                "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
+                            )
+                        )
                     }
                 }
             )
@@ -115,7 +124,12 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
             colors = MainButtonColors,
             onClick = {
                 scope.launch {
-                    viewModel.intent.send(BarcodeIntent.SetBarcode(null, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"))
+                    viewModel.intent.send(
+                        BarcodeIntent.SetBarcode(
+                            null,
+                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
+                        )
+                    )
                 }
             }
         ) {
@@ -124,45 +138,61 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
         Button(
             colors = MainButtonColors,
             onClick = {
-                scope.launch { viewModel.intent.send(BarcodeIntent.SetBarcode("812130020861", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")) }
+                scope.launch {
+                    viewModel.intent.send(
+                        BarcodeIntent.SetBarcode(
+                            "812130020861",
+                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
+                        )
+                    )
+                }
             }
         ) {
             Text("Barcode: 812130020861")
         }
 
-        val myMod = Modifier.fillMaxWidth().padding(0.dp,2.dp).background(Color(0xfffef2ec))
+        val myMod = Modifier
+            .fillMaxWidth()
+            .padding(0.dp, 2.dp)
+            .background(Color(0xfffef2ec))
         foodResult?.foods?.firstOrNull()?.let {
             with(it) {
                 brandName?.let { text ->
-                    Text(text,
+                    Text(
+                        text,
                         modifier = myMod,
                         fontWeight = FontWeight.W400
                     )
                 }
                 subbrandName?.let { text ->
-                    Text(text,
+                    Text(
+                        text,
                         modifier = myMod,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 description?.let { text ->
-                    Text(text,
+                    Text(
+                        text,
                         modifier = myMod,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-                Text("Serving Size: $servingSize $servingSizeUnit ",
+                Text(
+                    "Serving Size: $servingSize $servingSizeUnit ",
                     modifier = myMod,
                     fontWeight = FontWeight.SemiBold
                 )
                 packageWeight?.let { text ->
-                    Text(text,
+                    Text(
+                        text,
                         modifier = myMod,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-                if (!shortDescription.isNullOrEmpty() ) {
-                    Text(shortDescription,
+                if (!shortDescription.isNullOrEmpty()) {
+                    Text(
+                        shortDescription,
                         modifier = myMod,
                         fontWeight = FontWeight.W200
                     )
@@ -175,15 +205,19 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
             LazyColumn(
                 state = listState,
                 flingBehavior = flingBehavior,
-                modifier = Modifier.fillMaxSize().padding(5.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(5.dp)
             )
             {
                 items(list) {
                     with(it) {
-                        Card(modifier = Modifier.padding(5.dp)
-                            .fillMaxWidth()
-                            .shadow(3.dp,RoundedCornerShape(8.dp))
-                            .background(Color(0xfffce3d4)),
+                        Card(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .fillMaxWidth()
+                                .shadow(3.dp, RoundedCornerShape(8.dp))
+                                .background(Color(0xfffce3d4)),
                             shape = RoundedCornerShape(8.dp),
                             colors = CardDefaults.cardColors(
                                 containerColor = Color(0xfffce3d4),
@@ -192,8 +226,11 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                                 disabledContentColor = Color(0xffb77678)
 
                             )
-                        ){
-                            Text("$nutrientName: $value $unitName", modifier = Modifier.padding(10.dp))
+                        ) {
+                            Text(
+                                "$nutrientName: $value $unitName",
+                                modifier = Modifier.padding(10.dp)
+                            )
                         }
                     }
                 }
@@ -233,7 +270,10 @@ fun CameraPreview(
                 analysis.setAnalyzer(Dispatchers.Default.asExecutor()) { imageProxy: ImageProxy ->
                     val mediaImage = imageProxy.image
                     if (mediaImage != null) {
-                        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+                        val image = InputImage.fromMediaImage(
+                            mediaImage,
+                            imageProxy.imageInfo.rotationDegrees
+                        )
                         scanner.process(image)
                             .addOnSuccessListener { barcodes ->
                                 for (barcode in barcodes) {

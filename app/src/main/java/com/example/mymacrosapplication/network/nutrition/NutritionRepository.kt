@@ -1,7 +1,7 @@
-package com.example.mymacrosapplication.network
+package com.example.mymacrosapplication.network.nutrition
 
 import android.util.Log
-import com.example.mymacrosapplication.model.USDAResponse
+import com.example.mymacrosapplication.model.nutrition.USDAResponse
 import javax.inject.Inject
 
 class NutritionRepository @Inject constructor(

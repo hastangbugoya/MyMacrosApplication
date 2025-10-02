@@ -3,7 +3,6 @@ package com.example.mymacrosapplication.ui.theme
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuDefaults.outlinedTextFieldColors
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -29,33 +28,32 @@ val Cinderella = Color(0xfffce3d4)
 
 
 val MainButtonColors = ButtonColors(
-    containerColor = PersianPlum,
-    contentColor = Cinderella,
-    disabledContainerColor = TurkishRose,
-    disabledContentColor = ApricotPeach
+    containerColor = Purple40,
+    contentColor = Color.White,
+    disabledContainerColor = PurpleGrey80,
+    disabledContentColor = Color.Gray.copy(0.25f)
 )
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun getMainOutlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = ApricotPeach,
-    unfocusedContainerColor = Cinderella,
-    focusedBorderColor = PersianPlum,
-    unfocusedBorderColor = TurkishRose,
-    focusedLabelColor = PersianPlum,
-    cursorColor = PersianPlum,
-    disabledTextColor = Cinderella,
-    disabledBorderColor = TurkishRose,
-    focusedTextColor = PersianPlum,
-    unfocusedTextColor = TurkishRose,
-    unfocusedLabelColor = TurkishRose,
-    focusedLeadingIconColor = PersianPlum,
-    unfocusedLeadingIconColor = PersianPlum,
-    focusedTrailingIconColor = PersianPlum,
-    unfocusedTrailingIconColor = PersianPlum,
-    disabledLeadingIconColor = Cinderella,
-    disabledTrailingIconColor = Cinderella,
+    focusedBorderColor = PurpleGrey40,
+    unfocusedBorderColor = Purple40,
+    focusedLabelColor = PurpleGrey40,
+    cursorColor = PurpleGrey40,
+    disabledTextColor = Purple40.copy(0.25f),
+    disabledBorderColor = Purple40.copy(0.25f),
+    focusedTextColor = PurpleGrey40,
+    unfocusedTextColor = Purple40,
+    unfocusedLabelColor = Purple40,
+    focusedLeadingIconColor = PurpleGrey40,
+    unfocusedLeadingIconColor = Purple40,
+    focusedTrailingIconColor = PurpleGrey40,
+    unfocusedTrailingIconColor = Purple40,
+    disabledLeadingIconColor = Purple40.copy(0.25f),
+    disabledTrailingIconColor = Purple40.copy(0.25f),
     selectionColors = TextSelectionColors(
-        handleColor = Carnation,
-        backgroundColor = PersianPlum
+        handleColor = Purple80,
+        backgroundColor = Purple80
     )
 )

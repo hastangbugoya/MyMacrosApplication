@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,7 +41,7 @@ import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
 import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
-import com.example.mymacrosapplication.viewmodel.BarcodeViewModel
+import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -62,13 +61,18 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
+fun MainScreen(
+    innerPadding: PaddingValues,
+    viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()
+) {
     val state by viewModel.state.collectAsState()
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
     LocalContext.current
     Scaffold(
-        modifier = Modifier.fillMaxSize().background(Color(0xfffef2ec)),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xfffef2ec)),
         topBar = {
             SimpleTopBar(items[selectedItem])
         },
@@ -98,13 +102,14 @@ fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltVi
             contentAlignment = Alignment.Center
         ) {
 //            Greeting(name = items[selectedItem])
-            when(selectedItem) {
+            when (selectedItem) {
                 0 -> Greeting(name = items[selectedItem])
                 1 -> {
                     CameraPermissionBottomSheet {
                         BarcodeScannerScreen(viewModel)
                     }
                 }
+
                 else -> {
                     CarouselPageScreen()
                 }

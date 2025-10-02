@@ -1,7 +1,4 @@
-package com.example.mymacrosapplication.model
-
-import com.example.mymacrosapplication.model.Aggregations
-import com.example.mymacrosapplication.model.FoodSearchCriteria
+package com.example.mymacrosapplication.model.nutrition
 
 data class USDAResponse(
     val aggregations: Aggregations? = Aggregations(),
