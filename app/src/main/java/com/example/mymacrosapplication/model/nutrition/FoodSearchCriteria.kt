@@ -6,5 +6,5 @@ data class FoodSearchCriteria(
     val pageNumber: Int? = null,
     val pageSize: Int? = null,
     val query: String? = null,
-    val requireAllWords: Boolean? = null
+    val requireAllWords: Boolean? = null,
 )

@@ -8,5 +8,5 @@ data class FoodMeasure(
     val measureUnitId: Int? = null,
     val measureUnitName: String? = null,
     val modifier: String? = null,
-    val rank: Int? = null
+    val rank: Int? = null,
 )

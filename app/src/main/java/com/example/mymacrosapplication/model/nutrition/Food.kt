@@ -33,5 +33,5 @@ data class Food(
     val servingSizeUnit: String? = "g",
     val shortDescription: String? = null,
     val subbrandName: String? = null,
-    val tradeChannels: List<String>? = listOf()
+    val tradeChannels: List<String>? = listOf(),
 )

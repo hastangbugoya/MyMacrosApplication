@@ -10,5 +10,5 @@ data class BarcodeViewState(
     val errorMessage: String? = null,
     val isLoading: Boolean = false,
     val exception: Exception? = null,
-    val lastIntent: BarcodeIntent? = null
+    val lastIntent: BarcodeIntent? = null,
 )

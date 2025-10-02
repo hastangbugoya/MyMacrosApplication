@@ -17,15 +17,15 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit =
-        Retrofit.Builder()
+        Retrofit
+            .Builder()
             .baseUrl("https://api.nal.usda.gov/fdc/") // placeholder
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
     @Provides
     @Singleton
-    fun provideApi(retrofit: Retrofit): FoodApi =
-        retrofit.create(FoodApi::class.java)
+    fun provideApi(retrofit: Retrofit): FoodApi = retrofit.create(FoodApi::class.java)
 }
 
 interface FoodApi {
@@ -33,6 +33,6 @@ interface FoodApi {
     @GET("v1/foods/search")
     suspend fun searchFoods(
         @Query("query") query: String,
-        @Query("api_key") apiKey: String
+        @Query("api_key") apiKey: String,
     ): USDAResponse
 }

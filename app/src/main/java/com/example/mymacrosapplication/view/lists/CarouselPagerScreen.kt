@@ -31,32 +31,35 @@ fun CarouselPageScreen() {
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Pager
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
         ) { page ->
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        when (page) {
-                            0 -> Color.Red
-                            1 -> Color.Green
-                            2 -> Color.Blue
-                            3 -> Color.Yellow
-                            else -> Color.Magenta
-                        }
-                    ),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            when (page) {
+                                0 -> Color.Red
+                                1 -> Color.Green
+                                2 -> Color.Blue
+                                3 -> Color.Yellow
+                                else -> Color.Magenta
+                            },
+                        ),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(text = "Page $page", style = MaterialTheme.typography.headlineMedium)
             }
@@ -67,18 +70,19 @@ fun CarouselPageScreen() {
         // Indicator Dots
         Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             repeat(pagerState.pageCount) { index ->
                 val isSelected = pagerState.currentPage == index
                 Box(
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .size(if (isSelected) 12.dp else 8.dp)
-                        .background(
-                            if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
-                            shape = CircleShape
-                        )
+                    modifier =
+                        Modifier
+                            .padding(4.dp)
+                            .size(if (isSelected) 12.dp else 8.dp)
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
+                                shape = CircleShape,
+                            ),
                 )
             }
         }

@@ -63,16 +63,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     innerPadding: PaddingValues,
-    viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()
+    viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
 ) {
     val state by viewModel.state.collectAsState()
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
     LocalContext.current
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xfffef2ec)),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color(0xfffef2ec)),
         topBar = {
             SimpleTopBar(items[selectedItem])
         },
@@ -89,17 +90,18 @@ fun MainScreen(
                                 "Profile" -> Icon(Icons.Default.Person, contentDescription = null)
                             }
                         },
-                        label = { Text(label) }
+                        label = { Text(label) },
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+            contentAlignment = Alignment.Center,
         ) {
 //            Greeting(name = items[selectedItem])
             when (selectedItem) {
@@ -123,7 +125,7 @@ fun MainScreen(
             },
             onDismiss = {
                 viewModel.clearError()
-            }
+            },
         )
     }
 }
@@ -132,35 +134,39 @@ fun MainScreen(
 @Composable
 fun SimpleTopBar(
     selectedItem: String,
-    onIconClick: () -> Unit = {}
+    onIconClick: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
             Text(
                 text = selectedItem,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
             )
         },
         navigationIcon = {
             IconButton(onClick = onIconClick) {
                 Icon(
                     imageVector = Icons.Default.Android,
-                    contentDescription = "Click me"
+                    contentDescription = "Click me",
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
-        )
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
     )
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun Greeting(
+    name: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = "Hello $name!",
-        modifier = modifier
+        modifier = modifier,
     )
 }
 

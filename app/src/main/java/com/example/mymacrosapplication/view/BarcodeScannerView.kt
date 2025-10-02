@@ -67,14 +67,16 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
     val scope = rememberCoroutineScope()
     Log.d("Meow", "BarcodeScannerScreen")
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(10.dp),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(65.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(65.dp),
         ) {
             SearchBar(label = "Search by description") { searchString ->
                 Log.d("Meow", "SearchBar > callback from searchbar > searchString: $searchString")
@@ -82,20 +84,21 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                     viewModel.intent.send(
                         BarcodeIntent.SearchFood(
                             searchString,
-                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
-                        )
+                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
+                        ),
                     )
                 }
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
         Box(
-            modifier = Modifier
-                .height(85.dp)
-                .clipToBounds()
-                .background(Color.Blue)
-                .padding(0.dp)
-                .border(3.dp, Color(0xff691b1e))
+            modifier =
+                Modifier
+                    .height(85.dp)
+                    .clipToBounds()
+                    .background(Color.Blue)
+                    .padding(0.dp)
+                    .border(3.dp, Color(0xff691b1e)),
         ) {
             CameraPreview(
                 context = context,
@@ -104,18 +107,19 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                         viewModel.intent.send(
                             BarcodeIntent.SetBarcode(
                                 code,
-                                "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
-                            )
+                                "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
+                            ),
                         )
                     }
-                }
+                },
             )
             Text(
                 text = "${barcodeValue ?: "No barcode yet"}",
-                modifier = Modifier
-                    .background(Color.White.copy(0.25f))
-                    .padding(3.dp)
-                    .align(Alignment.BottomStart)
+                modifier =
+                    Modifier
+                        .background(Color.White.copy(0.25f))
+                        .padding(3.dp)
+                        .align(Alignment.BottomStart),
             )
         }
         Spacer(modifier = Modifier.height(5.dp))
@@ -127,11 +131,11 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                     viewModel.intent.send(
                         BarcodeIntent.SetBarcode(
                             null,
-                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
-                        )
+                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
+                        ),
                     )
                 }
-            }
+            },
         ) {
             Text("Retry", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
         }
@@ -142,59 +146,60 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                     viewModel.intent.send(
                         BarcodeIntent.SetBarcode(
                             "812130020861",
-                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"
-                        )
+                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
+                        ),
                     )
                 }
-            }
+            },
         ) {
             Text("Barcode: 812130020861")
         }
 
-        val myMod = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 2.dp)
-            .background(Color(0xfffef2ec))
+        val myMod =
+            Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 2.dp)
+                .background(Color(0xfffef2ec))
         foodResult?.foods?.firstOrNull()?.let {
             with(it) {
                 brandName?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.W400
+                        fontWeight = FontWeight.W400,
                     )
                 }
                 subbrandName?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
                 description?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
                 Text(
                     "Serving Size: $servingSize $servingSizeUnit ",
                     modifier = myMod,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
                 packageWeight?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
                 if (!shortDescription.isNullOrEmpty()) {
                     Text(
                         shortDescription,
                         modifier = myMod,
-                        fontWeight = FontWeight.W200
+                        fontWeight = FontWeight.W200,
                     )
                 }
             }
@@ -205,36 +210,36 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
             LazyColumn(
                 state = listState,
                 flingBehavior = flingBehavior,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(5.dp)
-            )
-            {
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(5.dp),
+            ) {
                 items(list) {
                     with(it) {
                         Card(
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .fillMaxWidth()
-                                .shadow(3.dp, RoundedCornerShape(8.dp))
-                                .background(Color(0xfffce3d4)),
+                            modifier =
+                                Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                                    .shadow(3.dp, RoundedCornerShape(8.dp))
+                                    .background(Color(0xfffce3d4)),
                             shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xfffce3d4),
-                                contentColor = Color(0xff691b1e),
-                                disabledContainerColor = Color(0xfffef2ec),
-                                disabledContentColor = Color(0xffb77678)
-
-                            )
+                            colors =
+                                CardDefaults.cardColors(
+                                    containerColor = Color(0xfffce3d4),
+                                    contentColor = Color(0xff691b1e),
+                                    disabledContainerColor = Color(0xfffef2ec),
+                                    disabledContentColor = Color(0xffb77678),
+                                ),
                         ) {
                             Text(
                                 "$nutrientName: $value $unitName",
-                                modifier = Modifier.padding(10.dp)
+                                modifier = Modifier.padding(10.dp),
                             )
                         }
                     }
                 }
-
             }
         }
     }
@@ -244,37 +249,44 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
 @Composable
 fun CameraPreview(
     context: Context,
-    onBarcodeDetected: (String) -> Unit
+    onBarcodeDetected: (String) -> Unit,
 ) {
     AndroidView(
         factory = { context ->
-            val previewView = PreviewView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
+            val previewView =
+                PreviewView(context).apply {
+                    layoutParams =
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
+                }
             val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
-                val preview = Preview.Builder().build().also {
-                    it.surfaceProvider = previewView.surfaceProvider
-                }
+                val preview =
+                    Preview.Builder().build().also {
+                        it.surfaceProvider = previewView.surfaceProvider
+                    }
 
-                val analysis = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
+                val analysis =
+                    ImageAnalysis
+                        .Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
 
                 val scanner = BarcodeScanning.getClient()
 
                 analysis.setAnalyzer(Dispatchers.Default.asExecutor()) { imageProxy: ImageProxy ->
                     val mediaImage = imageProxy.image
                     if (mediaImage != null) {
-                        val image = InputImage.fromMediaImage(
-                            mediaImage,
-                            imageProxy.imageInfo.rotationDegrees
-                        )
-                        scanner.process(image)
+                        val image =
+                            InputImage.fromMediaImage(
+                                mediaImage,
+                                imageProxy.imageInfo.rotationDegrees,
+                            )
+                        scanner
+                            .process(image)
                             .addOnSuccessListener { barcodes ->
                                 for (barcode in barcodes) {
                                     barcode.rawValue?.let { value ->
@@ -282,8 +294,7 @@ fun CameraPreview(
                                         onBarcodeDetected(value)
                                     }
                                 }
-                            }
-                            .addOnCompleteListener {
+                            }.addOnCompleteListener {
                                 imageProxy.close()
                             }
                     } else {
@@ -297,7 +308,7 @@ fun CameraPreview(
                         context as LifecycleOwner,
                         CameraSelector.DEFAULT_BACK_CAMERA,
                         preview,
-                        analysis
+                        analysis,
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -305,6 +316,6 @@ fun CameraPreview(
             }, ContextCompat.getMainExecutor(context))
 
             previewView
-        }
+        },
     )
 }

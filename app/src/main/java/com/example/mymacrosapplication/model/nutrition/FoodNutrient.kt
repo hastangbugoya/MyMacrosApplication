@@ -15,5 +15,5 @@ data class FoodNutrient(
     val percentDailyValue: Int? = null,
     val rank: Int? = null,
     val unitName: String? = null,
-    val value: Double? = null
+    val value: Double? = null,
 )

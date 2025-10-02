@@ -36,17 +36,18 @@ fun ErrorBottomSheet(
                 scope.launch { sheetState.hide() }
                 onDismiss()
             },
-            sheetState = sheetState
+            sheetState = sheetState,
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
             ) {
                 Text(
                     text = errorMessage ?: exception?.message ?: "Unknown error",
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -58,7 +59,7 @@ fun ErrorBottomSheet(
                             onRetry()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Retry")
                 }
@@ -68,7 +69,7 @@ fun ErrorBottomSheet(
                         scope.launch { sheetState.hide() }
                         onDismiss()
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Dismiss")
                 }
