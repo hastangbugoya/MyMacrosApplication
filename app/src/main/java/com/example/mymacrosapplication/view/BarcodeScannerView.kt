@@ -10,9 +10,12 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,10 +23,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -31,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
@@ -43,6 +50,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import com.example.mymacrosapplication.view.input.SearchBar
 import com.example.mymacrosapplication.viewmodel.BarcodeIntent
 import com.example.mymacrosapplication.viewmodel.BarcodeViewModel
@@ -51,6 +59,7 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
+import com.example.mymacrosapplication.ui.theme.MainButtonColors
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
@@ -82,6 +91,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 .clipToBounds()
                 .background(Color.Blue)
                 .padding(0.dp)
+                .border(3.dp, Color(0xff691b1e))
         ){
             CameraPreview(
                 context = context,
@@ -91,13 +101,19 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                     }
                 }
             )
+            Text(
+                text = "${barcodeValue ?: "No barcode yet"}",
+                modifier = Modifier
+                    .background(Color.White.copy(0.25f))
+                    .padding(3.dp)
+                    .align(Alignment.BottomStart)
+            )
         }
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(text = "Scanned : ${barcodeValue ?: "No barcode yet"}", modifier = Modifier.background(Color.Magenta))
+        Spacer(modifier = Modifier.height(5.dp))
         Button(
             modifier = Modifier.fillMaxWidth(),
+            colors = MainButtonColors,
             onClick = {
-                //viewModel.setBarcode(null, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")}
                 scope.launch {
                     viewModel.intent.send(BarcodeIntent.SetBarcode(null, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"))
                 }
@@ -106,15 +122,15 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
             Text("Retry", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
         }
         Button(
+            colors = MainButtonColors,
             onClick = {
-            //viewModel.setBarcode("812130020861", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")
                 scope.launch { viewModel.intent.send(BarcodeIntent.SetBarcode("812130020861", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")) }
             }
         ) {
             Text("Barcode: 812130020861")
         }
 
-        val myMod = Modifier.fillMaxWidth().padding(0.dp,5.dp)
+        val myMod = Modifier.fillMaxWidth().padding(0.dp,2.dp).background(Color(0xfffef2ec))
         foodResult?.foods?.firstOrNull()?.let {
             with(it) {
                 brandName?.let { text ->
@@ -145,16 +161,23 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-                shortDescription?.let { text ->
-                    Text(text,
+                if (!shortDescription.isNullOrEmpty() ) {
+                    Text(shortDescription,
                         modifier = myMod,
                         fontWeight = FontWeight.W200
                     )
                 }
             }
         }
+        val listState = rememberLazyListState()
+        val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
         foodResult?.foods?.firstOrNull()?.foodNutrients?.let { list ->
-            LazyColumn {
+            LazyColumn(
+                state = listState,
+                flingBehavior = flingBehavior,
+                modifier = Modifier.fillMaxSize().padding(5.dp)
+            )
+            {
                 items(list) {
                     with(it) {
                         Card(modifier = Modifier.padding(5.dp)
@@ -174,6 +197,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                         }
                     }
                 }
+
             }
         }
     }
@@ -196,7 +220,7 @@ fun CameraPreview(
             val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
-                val preview = androidx.camera.core.Preview.Builder().build().also {
+                val preview = Preview.Builder().build().also {
                     it.surfaceProvider = previewView.surfaceProvider
                 }
 
@@ -230,7 +254,7 @@ fun CameraPreview(
                 try {
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(
-                        context as androidx.lifecycle.LifecycleOwner,
+                        context as LifecycleOwner,
                         CameraSelector.DEFAULT_BACK_CAMERA,
                         preview,
                         analysis

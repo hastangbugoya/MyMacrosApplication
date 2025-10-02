@@ -31,7 +31,7 @@ data class Food(
     val preparationStateCode: String? = null,
     val publishedDate: String? = null,
     val score: Double? = 0.0,
-    val servingSize: Double? = 0.0,
+    val servingSize: Double? = 100.0,
     val servingSizeUnit: String? = "g",
     val shortDescription: String? = null,
     val subbrandName: String? = null,

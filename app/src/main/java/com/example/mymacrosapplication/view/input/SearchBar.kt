@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.example.mymacrosapplication.ui.theme.getMainOutlinedTextFieldColors
 import com.google.android.datatransport.runtime.logging.Logging
 
 @Composable
@@ -33,6 +34,7 @@ fun SearchBar(
 
     OutlinedTextField(
         value = query,
+        colors = getMainOutlinedTextFieldColors(),
         modifier = Modifier.fillMaxSize(),
         onValueChange = {query = it},
         label = { Text(label) },
