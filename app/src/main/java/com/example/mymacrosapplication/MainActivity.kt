@@ -10,15 +10,20 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,10 +64,12 @@ fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltVi
     val state by viewModel.state.collectAsState()
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
-    val context = LocalContext.current
-//    var hasCameraPermission by remember { mutableStateOf(false) }
+    LocalContext.current
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            SimpleTopBar(items[selectedItem])
+        },
         bottomBar = {
             NavigationBar {
                 items.forEachIndexed { index, label ->
@@ -88,7 +95,7 @@ fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltVi
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Greeting(name = items[selectedItem])
+//            Greeting(name = items[selectedItem])
             when(selectedItem) {
                 0 -> Greeting(name = items[selectedItem])
                 1 -> {
@@ -112,6 +119,34 @@ fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltVi
             }
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SimpleTopBar(
+    selectedItem: String,
+    onIconClick: () -> Unit = {}
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = selectedItem,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onIconClick) {
+                Icon(
+                    imageVector = Icons.Default.Android,
+                    contentDescription = "Click me"
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    )
 }
 
 @Composable

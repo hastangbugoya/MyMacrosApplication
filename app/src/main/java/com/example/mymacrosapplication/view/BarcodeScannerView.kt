@@ -22,7 +22,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.mymacrosapplication.view.input.SearchBar
 import com.example.mymacrosapplication.viewmodel.BarcodeIntent
@@ -152,7 +157,21 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
             LazyColumn {
                 items(list) {
                     with(it) {
-                        Text("$nutrientName: $value $unitName")
+                        Card(modifier = Modifier.padding(5.dp)
+                            .fillMaxWidth()
+                            .shadow(3.dp,RoundedCornerShape(8.dp))
+                            .background(Color(0xfffce3d4)),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xfffce3d4),
+                                contentColor = Color(0xff691b1e),
+                                disabledContainerColor = Color(0xfffef2ec),
+                                disabledContentColor = Color(0xffb77678)
+
+                            )
+                        ){
+                            Text("$nutrientName: $value $unitName", modifier = Modifier.padding(10.dp))
+                        }
                     }
                 }
             }
@@ -178,7 +197,7 @@ fun CameraPreview(
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
                 val preview = androidx.camera.core.Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
+                    it.surfaceProvider = previewView.surfaceProvider
                 }
 
                 val analysis = ImageAnalysis.Builder()
