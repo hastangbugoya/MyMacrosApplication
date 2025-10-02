@@ -1,5 +1,6 @@
 package com.example.mymacrosapplication
 
+import CarouselPageScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,12 +13,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +34,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
+import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
 import com.example.mymacrosapplication.viewmodel.BarcodeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,12 +53,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
+    val state by viewModel.state.collectAsState()
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
-    var hasCameraPermission by remember { mutableStateOf(false) }
+//    var hasCameraPermission by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -90,12 +96,23 @@ fun MainScreen(innerPadding: PaddingValues, viewModel: BarcodeViewModel = hiltVi
                         BarcodeScannerScreen(viewModel)
                     }
                 }
-                else -> Greeting(name = items[selectedItem])
+                else -> {
+                    CarouselPageScreen()
+                }
             }
         }
+        ErrorBottomSheet(
+            state.errorMessage,
+            state.exception,
+            onRetry = {
+                viewModel.retryLastAction()
+            },
+            onDismiss = {
+                viewModel.clearError()
+            }
+        )
     }
 }
-
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

@@ -2,7 +2,6 @@ package com.example.mymacrosapplication.view
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.Image
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -21,27 +20,32 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.mymacrosapplication.view.input.SearchBar
+import com.example.mymacrosapplication.viewmodel.BarcodeIntent
 import com.example.mymacrosapplication.viewmodel.BarcodeViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
@@ -49,43 +53,109 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
     val context = LocalContext.current
     val barcodeValue by viewModel.barcodeValue.collectAsState()
     val foodResult by viewModel.foodResult.collectAsState()
+    val scope = rememberCoroutineScope()
     Log.d("Meow", "BarcodeScannerScreen")
-    Column(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(10.dp)) {
         Box (
-            modifier = Modifier.
-            fillMaxWidth().
-            height(65.dp).
-            background(Color.Red)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp)
         ) {
-            SearchBar(label = "Search description") { searchString ->
-                viewModel.setBarcode(searchString, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")
+            SearchBar(label = "Search by description") { searchString ->
+                Log.d("Meow", "SearchBar > callback from searchbar > searchString: $searchString")
+                 scope.launch {
+                    viewModel.intent.send(BarcodeIntent.SearchFood(searchString, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"))
+                }
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
         Box (
-            modifier = Modifier.height(85.dp).
-            clipToBounds().
-            background(Color.Blue).
-            padding(0.dp)
+            modifier = Modifier
+                .height(85.dp)
+                .clipToBounds()
+                .background(Color.Blue)
+                .padding(0.dp)
         ){
             CameraPreview(
                 context = context,
                 onBarcodeDetected = { code ->
-                    viewModel.setBarcode(code, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")
+                    scope.launch {
+                        viewModel.intent.send(BarcodeIntent.SetBarcode(code, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"))
+                    }
                 }
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Scanned : ${barcodeValue ?: "No barcode yet"}", modifier = Modifier.background(Color.Magenta))
-        Button(onClick = {viewModel.setBarcode(null, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")}) {
-            Text("Retry")
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                //viewModel.setBarcode(null, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")}
+                scope.launch {
+                    viewModel.intent.send(BarcodeIntent.SetBarcode(null, "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg"))
+                }
+            }
+        ) {
+            Text("Retry", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
         }
-        Button(onClick = {viewModel.setBarcode("812130020861", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")}) {
+        Button(
+            onClick = {
+            //viewModel.setBarcode("812130020861", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")
+                scope.launch { viewModel.intent.send(BarcodeIntent.SetBarcode("812130020861", "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg")) }
+            }
+        ) {
             Text("Barcode: 812130020861")
         }
-        foodResult?.let {
-            Text(text = "First match: ${it.foods?.firstOrNull()?.toString() ?: "No match"}", modifier = Modifier.background(
-                Color.Yellow).wrapContentHeight())
+
+        val myMod = Modifier.fillMaxWidth().padding(0.dp,5.dp)
+        foodResult?.foods?.firstOrNull()?.let {
+            with(it) {
+                brandName?.let { text ->
+                    Text(text,
+                        modifier = myMod,
+                        fontWeight = FontWeight.W400
+                    )
+                }
+                subbrandName?.let { text ->
+                    Text(text,
+                        modifier = myMod,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                description?.let { text ->
+                    Text(text,
+                        modifier = myMod,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Text("Serving Size: $servingSize $servingSizeUnit ",
+                    modifier = myMod,
+                    fontWeight = FontWeight.SemiBold
+                )
+                packageWeight?.let { text ->
+                    Text(text,
+                        modifier = myMod,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                shortDescription?.let { text ->
+                    Text(text,
+                        modifier = myMod,
+                        fontWeight = FontWeight.W200
+                    )
+                }
+            }
+        }
+        foodResult?.foods?.firstOrNull()?.foodNutrients?.let { list ->
+            LazyColumn {
+                items(list) {
+                    with(it) {
+                        Text("$nutrientName: $value $unitName")
+                    }
+                }
+            }
         }
     }
 }

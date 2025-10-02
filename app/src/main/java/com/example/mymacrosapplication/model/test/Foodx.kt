@@ -1,6 +1,6 @@
 package com.example.mymacrosapplication.model.test
 
-data class Food(
+data class Foodx(
     val additionalDescriptions: String? = "",
     val allHighlightFields: String? = "",
     val commonNames: String? = "",

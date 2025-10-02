@@ -1,5 +1,7 @@
 package com.example.mymacrosapplication.model.test
 
+import com.example.mymacrosapplication.model.Food
+
 data class USDAResponse(
     val aggregations: Aggregations? = Aggregations(),
     val currentPage: Int? = 0,
