@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,15 +23,14 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
 @OptIn(
-    ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalPermissionsApi::class
+    ExperimentalPermissionsApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPermissionsApi::class,
 )
 @Composable
-fun CameraPermissionBottomSheet(
-    onGranted: @Composable () -> Unit
-) {
+fun CameraPermissionBottomSheet(onGranted: @Composable () -> Unit) {
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    var showSheet by remember { mutableStateOf(true) }
+    var showSheet by rememberSaveable { mutableStateOf(true) }
 
     if (cameraPermissionState.status.isGranted) {
         // ✅ Permission granted → show scanner
@@ -38,27 +38,28 @@ fun CameraPermissionBottomSheet(
     } else {
         if (showSheet) {
             ModalBottomSheet(
-                onDismissRequest = { showSheet = false }
+                onDismissRequest = { showSheet = false },
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Text(
                         "Camera permission required",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        "We need access to your camera to scan barcodes."
+                        "We need access to your camera to scan barcodes.",
                     )
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             showSheet = false
                             cameraPermissionState.launchPermissionRequest()
-                        }
+                        },
                     ) {
                         Text("Grant Permission")
                     }

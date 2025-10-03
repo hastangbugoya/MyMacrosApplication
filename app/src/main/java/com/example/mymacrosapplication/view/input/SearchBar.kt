@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.mymacrosapplication.ui.theme.getMainOutlinedTextFieldColors
@@ -21,9 +22,9 @@ import com.example.mymacrosapplication.ui.theme.getMainOutlinedTextFieldColors
 @Composable
 fun SearchBar(
     label: String = "Search....",
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
 ) {
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
 
     OutlinedTextField(
         value = query,
@@ -37,11 +38,11 @@ fun SearchBar(
                 onClick = {
                     Log.d("Meow", "SearchBar > onClick > query: $query")
                     onSearch(query)
-                }
+                },
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
+                    contentDescription = "Search",
                 )
             }
         },
@@ -50,15 +51,16 @@ fun SearchBar(
                 IconButton(onClick = { query = "" }) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "Clear"
+                        contentDescription = "Clear",
                     )
                 }
             }
         },
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                onSearch(query)
-            }
-        )
+        keyboardActions =
+            KeyboardActions(
+                onSearch = {
+                    onSearch(query)
+                },
+            ),
     )
 }

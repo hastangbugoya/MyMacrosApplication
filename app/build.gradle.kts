@@ -22,11 +22,25 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            val uSDAFDCApiKey: String? = project.findProperty("USDA_FDA_API_KEY") as? String? ?: ""
+
+            buildConfigField("String", "USDA_FDA_API_KEY", "\"$uSDAFDCApiKey\"")
+
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
+        }
+        debug {
+            val uSDAFDCApiKey: String? = project.findProperty("USDA_FDA_API_KEY") as? String? ?: ""
+
+            buildConfigField("String", "USDA_FDA_API_KEY", "\"$uSDAFDCApiKey\"")
+
+            println("USDA_FDA_API_KEY: $uSDAFDCApiKey")
+            isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
     }
     compileOptions {
@@ -38,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

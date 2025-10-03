@@ -30,6 +30,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -52,6 +54,7 @@ import com.example.mymacrosapplication.ui.theme.MainButtonColors
 import com.example.mymacrosapplication.view.input.SearchBar
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeIntent
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
+import com.google.android.datatransport.runtime.BuildConfig
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
@@ -62,9 +65,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
     val context = LocalContext.current
-    val barcodeValue by viewModel.barcodeValue.collectAsState()
-    val foodResult by viewModel.foodResult.collectAsState()
     val scope = rememberCoroutineScope()
+    val state by viewModel.state.collectAsState()
+
     Log.d("Meow", "BarcodeScannerScreen")
     Column(
         modifier =
@@ -72,6 +75,19 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 .fillMaxSize()
                 .padding(10.dp),
     ) {
+        if (state.isLoading) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize(),
+                // dim background
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
         Box(
             modifier =
                 Modifier
@@ -114,7 +130,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 },
             )
             Text(
-                text = "${barcodeValue ?: "No barcode yet"}",
+                text = "${state.barcodeValue ?: "No barcode yet"}",
                 modifier =
                     Modifier
                         .background(Color.White.copy(0.25f))
@@ -160,7 +176,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 .fillMaxWidth()
                 .padding(0.dp, 2.dp)
                 .background(Color(0xfffef2ec))
-        foodResult?.foods?.firstOrNull()?.let {
+        state.foodResult?.foods?.firstOrNull()?.let {
             with(it) {
                 brandName?.let { text ->
                     Text(
@@ -206,7 +222,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
         }
         val listState = rememberLazyListState()
         val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-        foodResult?.foods?.firstOrNull()?.foodNutrients?.let { list ->
+        state.foodResult?.foods?.firstOrNull()?.foodNutrients?.let { list ->
             LazyColumn(
                 state = listState,
                 flingBehavior = flingBehavior,

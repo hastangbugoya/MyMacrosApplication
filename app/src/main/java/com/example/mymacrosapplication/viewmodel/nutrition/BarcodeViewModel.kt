@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mymacrosapplication.model.nutrition.USDAResponse
 import com.example.mymacrosapplication.network.nutrition.NutritionRepository
+import com.google.android.datatransport.runtime.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,18 +29,16 @@ class BarcodeViewModel
         val barcodeValue: StateFlow<String?> = _barcodeValue
         private val _foodResult = MutableStateFlow<USDAResponse?>(null)
         val foodResult: StateFlow<USDAResponse?> = _foodResult
+        val key = com.example.mymacrosapplication.BuildConfig.USDA_FDA_API_KEY
 
-        fun setBarcode(
-            value: String?,
-            apiKey: String,
-        ) {
+        fun setBarcode(value: String?) {
             _barcodeValue.value = value
             _state.value =
                 _state.value.copy(
                     barcodeValue = value,
                 )
             value?.let {
-                searchFood(value, apiKey)
+                searchFood(value)
             } ?: run {
                 _state.value =
                     _state.value.copy(
@@ -56,22 +55,19 @@ class BarcodeViewModel
                     when (intent) {
                         is BarcodeIntent.SetBarcode -> {
                             Log.d("Meow", "viewModel > when(intent) > SetBarCode ? $intent")
-                            setBarcode(intent.code, intent.apiKey)
+                            setBarcode(intent.code)
                         }
 
                         is BarcodeIntent.SearchFood -> {
                             Log.d("Meow", "viewModel > when(intent) > SearchFood ? $intent")
-                            searchFood(intent.query, intent.apiKey)
+                            searchFood(intent.query)
                         }
                     }
                 }
             }
         }
 
-        private fun searchFood(
-            query: String?,
-            apiKey: String,
-        ) {
+        private fun searchFood(query: String?) {
             if (query == null) {
                 _state.value =
                     _state.value.copy(
@@ -81,7 +77,7 @@ class BarcodeViewModel
             }
             viewModelScope.launch {
                 try {
-                    val result = repository.searchFoods(query, apiKey)
+                    val result = repository.searchFoods(query)
                     val count = result.foods?.size ?: 0
                     _state.value =
                         _state.value.copy(
@@ -105,6 +101,7 @@ class BarcodeViewModel
                     _foodResult.value = null
                     e.printStackTrace()
                 }
+                _state.value = _state.value.copy(isLoading = false)
             }
         }
 
