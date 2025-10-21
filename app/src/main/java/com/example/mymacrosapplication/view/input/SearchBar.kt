@@ -18,19 +18,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.mymacrosapplication.ui.theme.getMainOutlinedTextFieldColors
+import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
+import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewState
 
 @Composable
 fun SearchBar(
     label: String = "Search....",
+    onChange: (String) -> Unit,
     onSearch: (String) -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
-
     OutlinedTextField(
         value = query,
         colors = getMainOutlinedTextFieldColors(),
         modifier = Modifier.fillMaxSize(),
-        onValueChange = { query = it },
+        onValueChange = {
+            query = it
+            onChange(it)
+        },
         label = { Text(label) },
         singleLine = true,
         leadingIcon = {

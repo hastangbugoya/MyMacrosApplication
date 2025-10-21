@@ -75,36 +75,46 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 .fillMaxSize()
                 .padding(10.dp),
     ) {
-        if (state.isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize(),
-                // dim background
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
+//        if (state.isLoading) {
+//            Box(
+//                modifier =
+//                    Modifier
+//                        .fillMaxSize(),
+//                // dim background
+//                contentAlignment = Alignment.Center,
+//            ) {
+//                CircularProgressIndicator(
+//                    color = MaterialTheme.colorScheme.primary,
+//                )
+//            }
+//        }
         Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .height(65.dp),
         ) {
-            SearchBar(label = "Search by description") { searchString ->
-                Log.d("Meow", "SearchBar > callback from searchbar > searchString: $searchString")
-                scope.launch {
-                    viewModel.intent.send(
-                        BarcodeIntent.SearchFood(
-                            searchString,
-                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
-                        ),
+            SearchBar(
+                label = "Search by description",
+                onSearch = { searchString ->
+                    viewModel.updateSearchString(searchString)
+                    Log.d(
+                        "Meow",
+                        "SearchBar > callback from searchbar > searchString: $searchString",
                     )
-                }
-            }
+                    scope.launch {
+                        viewModel.intent.send(
+                            BarcodeIntent.SearchFood(
+                                searchString,
+                                com.example.mymacrosapplication.BuildConfig.USDA_FDA_API_KEY,
+                            ),
+                        )
+                    }
+                },
+                onChange = {
+                    viewModel.updateSearchString(it)
+                },
+            )
         }
         Spacer(modifier = Modifier.height(10.dp))
         Box(
@@ -112,20 +122,20 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 Modifier
                     .height(85.dp)
                     .clipToBounds()
-                    .background(Color.Blue)
-                    .padding(0.dp)
-                    .border(3.dp, Color(0xff691b1e)),
+                    .padding(0.dp),
         ) {
             CameraPreview(
                 context = context,
                 onBarcodeDetected = { code ->
                     scope.launch {
-                        viewModel.intent.send(
-                            BarcodeIntent.SetBarcode(
-                                code,
-                                "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
-                            ),
-                        )
+                        if (code.isNotEmpty() && !viewModel.state.value.isLoading) {
+                            viewModel.intent.send(
+                                BarcodeIntent.SetBarcode(
+                                    code,
+                                    com.example.mymacrosapplication.BuildConfig.USDA_FDA_API_KEY,
+                                ),
+                            )
+                        }
                     }
                 },
             )
@@ -141,28 +151,29 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
         Spacer(modifier = Modifier.height(5.dp))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            colors = MainButtonColors,
             onClick = {
                 scope.launch {
-                    viewModel.intent.send(
-                        BarcodeIntent.SetBarcode(
-                            null,
-                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
-                        ),
-                    )
+                    viewModel.intent
+                        .send(
+                            BarcodeIntent.SetBarcode(
+                                null,
+                                com.example.mymacrosapplication.BuildConfig.USDA_FDA_API_KEY,
+                            ),
+                        ).also {
+                            viewModel.unlockBarcode()
+                        }
                 }
             },
         ) {
-            Text("Retry", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
+            Text("Retry Scan", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
         }
         Button(
-            colors = MainButtonColors,
             onClick = {
                 scope.launch {
                     viewModel.intent.send(
                         BarcodeIntent.SetBarcode(
                             "812130020861",
-                            "NW8f6sDOwtWk6EOjKZLefMR6wO3JSX8KkcRDHBUg",
+                            com.example.mymacrosapplication.BuildConfig.USDA_FDA_API_KEY,
                         ),
                     )
                 }
@@ -175,47 +186,41 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
             Modifier
                 .fillMaxWidth()
                 .padding(0.dp, 2.dp)
-                .background(Color(0xfffef2ec))
+
         state.foodResult?.foods?.firstOrNull()?.let {
             with(it) {
                 brandName?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.W400,
                     )
                 }
                 subbrandName?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.Bold,
                     )
                 }
                 description?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.SemiBold,
                     )
                 }
                 Text(
                     "Serving Size: $servingSize $servingSizeUnit ",
                     modifier = myMod,
-                    fontWeight = FontWeight.SemiBold,
                 )
                 packageWeight?.let { text ->
                     Text(
                         text,
                         modifier = myMod,
-                        fontWeight = FontWeight.SemiBold,
                     )
                 }
                 if (!shortDescription.isNullOrEmpty()) {
                     Text(
                         shortDescription,
                         modifier = myMod,
-                        fontWeight = FontWeight.W200,
                     )
                 }
             }
@@ -250,7 +255,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                                 ),
                         ) {
                             Text(
-                                "$nutrientName: $value $unitName",
+                                "$nutrientName($nutrientId): $value $unitName",
                                 modifier = Modifier.padding(10.dp),
                             )
                         }

@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
@@ -54,9 +55,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyMacrosApplicationTheme {
                 Surface(
+                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    MainScreen(PaddingValues(0.dp))
+                    MainScreen()
                 }
             }
         }
@@ -65,11 +67,8 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-    innerPadding: PaddingValues,
-    viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
-) {
-    val state by viewModel.state.collectAsState()
+fun MainScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
     LocalContext.current
@@ -117,7 +116,7 @@ fun MainScreen(
                 }
 
                 else -> {
-                    CarouselPageScreen()
+                    CarouselPageScreen(viewModel)
                 }
             }
         }
