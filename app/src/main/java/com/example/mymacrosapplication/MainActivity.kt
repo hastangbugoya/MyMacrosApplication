@@ -39,9 +39,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
+import com.example.mymacrosapplication.view.GoogleMapScreen
+import com.example.mymacrosapplication.view.GoogleMapTestScreen
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
 import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
+import com.example.mymacrosapplication.viewmodel.map.GoogleMapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
+import com.google.android.gms.maps.MapView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -64,7 +68,10 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
+fun MainScreen(
+    viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
+    mapViewModel: GoogleMapViewModel = hiltViewModel<GoogleMapViewModel>(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
@@ -113,7 +120,7 @@ fun MainScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) 
                 }
 
                 else -> {
-                    CarouselPageScreen(viewModel)
+                    GoogleMapScreen()
                 }
             }
         }

@@ -28,6 +28,7 @@ android {
         debug {
 //            val key: String = project.findProperty("USDA_FDA_API_KEY") as? String ?: ""
             buildConfigField("String", "USDA_FDA_API_KEY", "\"0seh3Ezb6GrQW1JpdU6RVlV9lpcDkcCZSrxkxTdh\"")
+            buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"AIzaSyC2s-ZMnSSIU3at93hIei0OVnxYDmimfYA\"")
 
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
@@ -36,6 +37,7 @@ android {
         release {
 //            val key: String = project.findProperty("USDA_FDA_API_KEY") as? String ?: ""
             buildConfigField("String", "USDA_FDA_API_KEY", "\"seh3Ezb6GrQW1JpdU6RVlV9lpcDkcCZSrxkxTdh\"")
+            buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"AIzaSyC2s-ZMnSSIU3at93hIei0OVnxYDmimfYA\"")
 
             isMinifyEnabled = true
             proguardFiles(
@@ -110,6 +112,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.36.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
