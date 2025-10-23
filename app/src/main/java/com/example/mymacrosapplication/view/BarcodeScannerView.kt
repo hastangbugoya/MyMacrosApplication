@@ -19,6 +19,7 @@ import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -120,7 +121,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
         Box(
             modifier =
                 Modifier
-                    .height(85.dp)
+                    .fillMaxHeight(0.2f)
                     .clipToBounds()
                     .padding(0.dp),
         ) {
@@ -150,7 +151,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
         }
         Spacer(modifier = Modifier.height(5.dp))
         Button(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.1f),
             onClick = {
                 scope.launch {
                     viewModel.intent
@@ -165,7 +166,7 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 }
             },
         ) {
-            Text("Retry Scan", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
+            Text("Scan", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
         }
         Button(
             onClick = {

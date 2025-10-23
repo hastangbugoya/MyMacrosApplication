@@ -77,11 +77,9 @@ class BarcodeViewModel
                 _state.update { it.copy(errorMessage = "No query provided") }
                 return
             }
-//            Log.d("Meow", "SearchFood: $query is not null, isLoading = ${_state.value.isLoading}")
 //            if (_state.value.isLoading) {
 //                return
 //            }
-//            Log.d("Meow", "SearchFood: $query not loading state")
             viewModelScope.launch {
                 Log.d("Meow", "SearchFood: $query entered viewModelScope")
                 try {
@@ -98,7 +96,6 @@ class BarcodeViewModel
                                 errorMessage = "No matches found",
                             )
                     }
-//                    _foodResult.value = result
                     Log.d("Meow", "SearchFood: $query >> Found ($count) matches")
                 } catch (e: Exception) {
                     Log.d("Meow", "SearchFood: $query >> Error: ${e.message} ")
@@ -107,7 +104,6 @@ class BarcodeViewModel
                             errorMessage = e.message,
                             exception = e,
                         )
-//                    _foodResult.value = null
                     barcodeLocked.compareAndSet(true, false)
                     e.printStackTrace()
                 }
