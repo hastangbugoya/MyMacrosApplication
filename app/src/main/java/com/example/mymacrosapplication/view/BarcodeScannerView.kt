@@ -76,19 +76,6 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 .fillMaxSize()
                 .padding(10.dp),
     ) {
-//        if (state.isLoading) {
-//            Box(
-//                modifier =
-//                    Modifier
-//                        .fillMaxSize(),
-//                // dim background
-//                contentAlignment = Alignment.Center,
-//            ) {
-//                CircularProgressIndicator(
-//                    color = MaterialTheme.colorScheme.primary,
-//                )
-//            }
-//        }
         Box(
             modifier =
                 Modifier

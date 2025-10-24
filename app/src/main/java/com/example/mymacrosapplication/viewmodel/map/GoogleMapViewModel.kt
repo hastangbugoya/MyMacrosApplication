@@ -1,53 +1,56 @@
-package com.example.mymacrosapplication.viewmodel.map
+package com.example.mymacrosapplication.viewmodel
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Looper
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GoogleMapViewModel
+class MapViewModel
     @Inject
     constructor(
-        private val app: Application,
-    ) : AndroidViewModel(app) {
-        private val fusedLocationClient =
-            LocationServices.getFusedLocationProviderClient(app)
+        private val fusedLocationClient: FusedLocationProviderClient,
+        private val application: Application,
+    ) : ViewModel() {
+        private val _currentLocation = MutableStateFlow<LatLng?>(null)
+        val currentLocation: StateFlow<LatLng?> = _currentLocation
 
-        private val _currentLocation = mutableStateOf<LatLng?>(null)
-        val currentLocation: State<LatLng?> = _currentLocation
+        private val _hasPermission = MutableStateFlow(false)
+        val hasPermission: StateFlow<Boolean> = _hasPermission
 
-        fun fetchCurrentLocation() {
-            android.util.Log.d("Meow", "Fetching current location")
+        fun setPermissionGranted(granted: Boolean) {
+            _hasPermission.value = granted
+            if (granted) fetchCurrentLocation()
+        }
+
+        @SuppressLint("MissingPermission")
+        private fun fetchCurrentLocation() {
+            val app = application
 
             if (
-                ActivityCompat.checkSelfPermission(
-                    app,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                ) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(
-                    app,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                ) != PackageManager.PERMISSION_GRANTED
+                ActivityCompat.checkSelfPermission(app, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(app, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
             ) {
-                android.util.Log.d("Meow", "Location permission not granted")
                 return
             }
 
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     _currentLocation.value = LatLng(location.latitude, location.longitude)
-                    android.util.Log.d("Meow", "Got last location: $location")
                 } else {
-                    // If cached location is null, request a new one
                     val request =
                         LocationRequest
                             .Builder(
@@ -60,19 +63,21 @@ class GoogleMapViewModel
                         request,
                         object : LocationCallback() {
                             override fun onLocationResult(result: LocationResult) {
-                                val loc = result.lastLocation
-                                if (loc != null) {
-                                    _currentLocation.value = LatLng(loc.latitude, loc.longitude)
-                                    android.util.Log.d("Meow", "Got fresh location: $loc")
-                                    fusedLocationClient.removeLocationUpdates(this)
-                                } else {
-                                    android.util.Log.d("Meow", "Still no location")
+                                result.lastLocation?.let {
+                                    _currentLocation.value = LatLng(it.latitude, it.longitude)
                                 }
+                                fusedLocationClient.removeLocationUpdates(this)
                             }
                         },
                         Looper.getMainLooper(),
                     )
                 }
+            }
+        }
+
+        fun refreshLocation() {
+            viewModelScope.launch {
+                if (_hasPermission.value) fetchCurrentLocation()
             }
         }
     }

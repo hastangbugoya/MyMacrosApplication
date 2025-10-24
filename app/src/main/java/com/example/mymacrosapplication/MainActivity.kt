@@ -43,7 +43,7 @@ import com.example.mymacrosapplication.view.GoogleMapScreen
 import com.example.mymacrosapplication.view.GoogleMapTestScreen
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
 import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
-import com.example.mymacrosapplication.viewmodel.map.GoogleMapViewModel
+import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import com.google.android.gms.maps.MapView
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
-    mapViewModel: GoogleMapViewModel = hiltViewModel<GoogleMapViewModel>(),
+    mapViewModel: MapViewModel = hiltViewModel<MapViewModel>(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val items = listOf("Home", "Search", "Profile")
