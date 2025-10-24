@@ -23,7 +23,7 @@ fun GoogleMapScreen(viewModel: MapViewModel = hiltViewModel()) {
     val hasPermission by viewModel.hasPermission.collectAsState()
     val cameraPositionState = rememberCameraPositionState()
 
-    // Ask for permission
+    // Ask permission
     LaunchedEffect(Unit) {
         if (!finePermission.status.isGranted) {
             finePermission.launchPermissionRequest()
@@ -32,46 +32,33 @@ fun GoogleMapScreen(viewModel: MapViewModel = hiltViewModel()) {
         }
     }
 
-    // React to permission changes
+    // Update viewmodel when permission changes
     LaunchedEffect(finePermission.status.isGranted) {
         viewModel.setPermissionGranted(finePermission.status.isGranted)
     }
 
-    // Animate to location when available
+    // 🧭 Move camera when a new location arrives
     LaunchedEffect(currentLocation) {
-        currentLocation?.let {
+        currentLocation?.let { latLng ->
+            android.util.Log.d("MapScreen", "Moving camera to ${latLng.latitude}, ${latLng.longitude}")
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(it, 15f),
+                CameraUpdateFactory.newLatLngZoom(latLng, 16f),
                 durationMs = 1000,
             )
         }
     }
 
-    Box(Modifier.fillMaxSize()) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties =
-                MapProperties(
-                    isMyLocationEnabled = hasPermission,
-                ),
-        ) {
-            currentLocation?.let {
-                Marker(
-                    state = MarkerState(position = it),
-                    title = "You are here",
-                )
-            }
-        }
-
-        FloatingActionButton(
-            onClick = { viewModel.refreshLocation() },
-            modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-        ) {
-            Text("📍")
+    // 🗺️ Show map
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        cameraPositionState = cameraPositionState,
+        properties = MapProperties(isMyLocationEnabled = hasPermission),
+    ) {
+        currentLocation?.let {
+            Marker(
+                state = MarkerState(position = it),
+                title = "You are here",
+            )
         }
     }
 }
