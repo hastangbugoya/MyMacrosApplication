@@ -40,9 +40,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.GoogleMapScreen
-import com.example.mymacrosapplication.view.GoogleMapTestScreen
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
 import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
+import com.example.mymacrosapplication.view.testscreens.GoogleMapTestScreen
 import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import com.google.android.gms.maps.MapView

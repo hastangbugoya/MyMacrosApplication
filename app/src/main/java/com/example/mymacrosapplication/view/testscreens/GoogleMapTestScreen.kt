@@ -1,4 +1,4 @@
-package com.example.mymacrosapplication.view
+package com.example.mymacrosapplication.view.testscreens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -21,7 +21,7 @@ fun GoogleMapTestScreen() {
         }
 
     GoogleMap(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.Companion.fillMaxSize(),
         cameraPositionState = cameraPositionState,
     ) {
         Marker(
