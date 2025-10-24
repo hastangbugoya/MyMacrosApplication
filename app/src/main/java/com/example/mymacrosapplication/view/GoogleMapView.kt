@@ -1,72 +1,80 @@
 package com.example.mymacrosapplication.view
 
 import android.Manifest
-import androidx.compose.foundation.gestures.snapping.SnapPosition.Center.position
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mymacrosapplication.viewmodel.map.GoogleMapViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.maps.android.compose.*
 
-@Suppress("ktlint:standard:function-naming")
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun GoogleMapScreen(viewModel: GoogleMapViewModel = hiltViewModel()) {
-    LocalContext.current
-    val locationPermission =
-        rememberPermissionState(
-            permission = Manifest.permission.ACCESS_FINE_LOCATION,
+    val context = LocalContext.current
+    val location by viewModel.currentLocation
+    val cameraPositionState = rememberCameraPositionState()
+
+    // Track permission state
+    var hasPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ) == PackageManager.PERMISSION_GRANTED,
         )
-    val location = viewModel.currentLocation.value
+    }
 
+    // Permission launcher
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            hasPermission = granted
+            if (granted) viewModel.fetchCurrentLocation()
+        }
+
+    // Ask for permission on launch if needed
     LaunchedEffect(Unit) {
-        if (locationPermission.status.isGranted) {
-            viewModel.fetchCurrentLocation()
+        if (!hasPermission) {
+            android.util.Log.d("Meow", "Requesting location permission")
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         } else {
-            locationPermission.launchPermissionRequest()
+            viewModel.fetchCurrentLocation()
         }
     }
 
-    val cameraPositionState =
-        rememberCameraPositionState {
-            position = CameraPosition.fromLatLngZoom(location ?: LatLng(37.7749, -122.4194), 12f)
-        }
-
+    // Move camera when location changes
     LaunchedEffect(location) {
-        android.util.Log.d("Meow", "Location: $location")
         location?.let {
-            android.util.Log.d("Meow", "Location: ${it.latitude}, ${it.longitude}")
             cameraPositionState.animate(
-                com.google.android.gms.maps.CameraUpdateFactory
-                    .newLatLngZoom(it, 15f),
+                update = CameraUpdateFactory.newLatLngZoom(it, 15f),
+                durationMs = 1000,
             )
+            android.util.Log.d("Meow", "Camera moved to: $it")
         }
     }
 
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState,
-        properties = MapProperties(isMyLocationEnabled = locationPermission.status.isGranted),
-    ) {
-        location?.let {
-            Marker(
-//                state = MarkerState(position = LatLng(37.7749, -122.4194)),
-                state = MarkerState(position = it),
-                title = "You are here",
-                snippet = "Current location",
-            )
+    Box(modifier = Modifier.fillMaxSize()) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            properties = MapProperties(isMyLocationEnabled = hasPermission),
+            uiSettings = MapUiSettings(myLocationButtonEnabled = true),
+        ) {
+            location?.let {
+                Marker(
+                    state = MarkerState(position = it),
+                    title = "You are here",
+                )
+            }
         }
     }
 }

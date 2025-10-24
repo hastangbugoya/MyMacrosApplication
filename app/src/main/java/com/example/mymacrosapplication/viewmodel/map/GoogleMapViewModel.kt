@@ -8,11 +8,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.AndroidViewModel
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -25,10 +21,13 @@ class GoogleMapViewModel
     ) : AndroidViewModel(app) {
         private val fusedLocationClient =
             LocationServices.getFusedLocationProviderClient(app)
+
         private val _currentLocation = mutableStateOf<LatLng?>(null)
         val currentLocation: State<LatLng?> = _currentLocation
 
         fun fetchCurrentLocation() {
+            android.util.Log.d("Meow", "Fetching current location")
+
             if (
                 ActivityCompat.checkSelfPermission(
                     app,
@@ -39,14 +38,16 @@ class GoogleMapViewModel
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
+                android.util.Log.d("Meow", "Location permission not granted")
                 return
             }
 
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     _currentLocation.value = LatLng(location.latitude, location.longitude)
+                    android.util.Log.d("Meow", "Got last location: $location")
                 } else {
-                    // 🔹 Request a fresh location if cached one is null
+                    // If cached location is null, request a new one
                     val request =
                         LocationRequest
                             .Builder(
@@ -62,10 +63,10 @@ class GoogleMapViewModel
                                 val loc = result.lastLocation
                                 if (loc != null) {
                                     _currentLocation.value = LatLng(loc.latitude, loc.longitude)
-                                    android.util.Log.d("Meow", "Got fresh location: ${loc.latitude}, ${loc.longitude}")
+                                    android.util.Log.d("Meow", "Got fresh location: $loc")
                                     fusedLocationClient.removeLocationUpdates(this)
                                 } else {
-                                    android.util.Log.d("Meow", "Still no location from request")
+                                    android.util.Log.d("Meow", "Still no location")
                                 }
                             }
                         },
