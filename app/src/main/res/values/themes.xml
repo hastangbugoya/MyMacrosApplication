@@ -3,7 +3,6 @@
 
     <style name="Theme.MyMacrosApplication" parent="android:Theme.Material.Light.NoActionBar" />
 
-
     <!-- 🔹 Splash screen theme -->
     <style name="Theme.MyApp.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#000000</item>

@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -57,4 +58,20 @@ fun getMainOutlinedTextFieldColors() =
                 handleColor = Purple80,
                 backgroundColor = Purple80,
             ),
+    )
+
+private val SampleColorPalette =
+    lightColorScheme(
+        primary = TurkishRose,
+        onPrimary = NewYorkPink,
+        primaryContainer = RoseBud,
+        onPrimaryContainer = ApricotPeach,
+        secondary = PersianPlum,
+        onSecondary = TallPoppy,
+        background = Carnation,
+        onBackground = Cinderella,
+        surface = Purple80,
+        onSurface = PurpleGrey80,
+        error = Pink80,
+        onError = Pink40,
     )
