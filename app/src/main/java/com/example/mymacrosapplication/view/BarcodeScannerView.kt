@@ -139,24 +139,6 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
         }
         Spacer(modifier = Modifier.height(5.dp))
         Button(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.1f),
-            onClick = {
-                scope.launch {
-                    viewModel.intent
-                        .send(
-                            BarcodeIntent.SetBarcode(
-                                null,
-                                com.example.mymacrosapplication.BuildConfig.USDA_FDA_API_KEY,
-                            ),
-                        ).also {
-                            viewModel.unlockBarcode()
-                        }
-                }
-            },
-        ) {
-            Text("Scan", textAlign = TextAlign.Center, fontWeight = FontWeight.ExtraBold)
-        }
-        Button(
             onClick = {
                 scope.launch {
                     viewModel.intent.send(
@@ -176,82 +158,6 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
                 .fillMaxWidth()
                 .padding(0.dp, 2.dp)
         FoodPager(state)
-//        state.foodResult?.foods?.firstOrNull()?.let {
-//            with(it) {
-//                brandName?.let { text ->
-//                    Text(
-//                        text,
-//                        modifier = myMod,
-//                    )
-//                }
-//                subbrandName?.let { text ->
-//                    Text(
-//                        text,
-//                        modifier = myMod,
-//                    )
-//                }
-//                description?.let { text ->
-//                    Text(
-//                        text,
-//                        modifier = myMod,
-//                    )
-//                }
-//                Text(
-//                    "Serving Size: $servingSize $servingSizeUnit ",
-//                    modifier = myMod,
-//                )
-//                packageWeight?.let { text ->
-//                    Text(
-//                        text,
-//                        modifier = myMod,
-//                    )
-//                }
-//                if (!shortDescription.isNullOrEmpty()) {
-//                    Text(
-//                        shortDescription,
-//                        modifier = myMod,
-//                    )
-//                }
-//            }
-//        }
-//        val listState = rememberLazyListState()
-//        val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-//        state.foodResult?.foods?.firstOrNull()?.foodNutrients?.let { list ->
-//            LazyColumn(
-//                state = listState,
-//                flingBehavior = flingBehavior,
-//                modifier =
-//                    Modifier
-//                        .fillMaxSize()
-//                        .padding(5.dp),
-//            ) {
-//                items(list) {
-//                    with(it) {
-//                        Card(
-//                            modifier =
-//                                Modifier
-//                                    .padding(5.dp)
-//                                    .fillMaxWidth()
-//                                    .shadow(3.dp, RoundedCornerShape(8.dp))
-//                                    .background(Color(0xfffce3d4)),
-//                            shape = RoundedCornerShape(8.dp),
-//                            colors =
-//                                CardDefaults.cardColors(
-//                                    containerColor = Color(0xfffce3d4),
-//                                    contentColor = Color(0xff691b1e),
-//                                    disabledContainerColor = Color(0xfffef2ec),
-//                                    disabledContentColor = Color(0xffb77678),
-//                                ),
-//                        ) {
-//                            Text(
-//                                "$nutrientName($nutrientId): $value $unitName",
-//                                modifier = Modifier.padding(10.dp),
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 }
 
