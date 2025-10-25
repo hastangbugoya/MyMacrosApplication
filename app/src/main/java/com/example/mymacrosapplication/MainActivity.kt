@@ -1,6 +1,9 @@
 package com.example.mymacrosapplication
 
 import CarouselPageScreen
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,9 +38,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
+import com.example.mymacrosapplication.utils.NotificationHelper
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.BottomBarItems
 import com.example.mymacrosapplication.view.GoogleMapScreen
@@ -45,12 +51,17 @@ import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
 import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var notificationHelper: NotificationHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        checkNotificationPermission()
         setContent {
             MyMacrosApplicationTheme {
                 Surface(
@@ -63,6 +74,37 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001,
+                )
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 1001 && grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            // ✅ Test notification
+            notificationHelper.showNotification("Permission Granted", "Notifications enabled!")
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +112,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
     mapViewModel: MapViewModel = hiltViewModel<MapViewModel>(),
+    onNotify: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val items =

@@ -74,6 +74,9 @@ fun GoogleMapScreen(
         // Overlay button at the bottom
         Button(
             onClick = {
+                currentLocation?.let {
+                    viewModel.notifyLocationFound(it.latitude, it.longitude)
+                }
                 val locationText =
                     currentLocation?.let {
                         "Lat: ${it.latitude}, Lng: ${it.longitude}"

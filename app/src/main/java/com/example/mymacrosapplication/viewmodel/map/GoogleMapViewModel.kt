@@ -11,6 +11,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mymacrosapplication.utils.NotificationHelper
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,6 +26,7 @@ class MapViewModel
     constructor(
         private val fusedLocationClient: FusedLocationProviderClient,
         private val application: Application,
+        private val notificationHelper: NotificationHelper,
     ) : ViewModel() {
         // ---- STATE ----
         private val _currentLocation = MutableStateFlow<LatLng?>(null)
@@ -98,5 +100,13 @@ class MapViewModel
                     )
                 }
             }
+        }
+
+        fun notifyLocationFound(
+            lat: Double,
+            lng: Double,
+        ) {
+            val message = "You are near lat=$lat, lng=$lng"
+            notificationHelper.showNotification("Location Update", message)
         }
     }
