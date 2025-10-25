@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ErrorBottomSheet(
+fun BarcodeErrorBottomSheet(
     errorMessage: String?,
     exception: Exception?,
     onRetry: () -> Unit,

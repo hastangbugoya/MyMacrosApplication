@@ -35,6 +35,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,6 +53,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import com.example.mymacrosapplication.ui.theme.MainButtonColors
+import com.example.mymacrosapplication.view.alerts.FoodSearchCountBottomSheet
 import com.example.mymacrosapplication.view.input.SearchBar
 import com.example.mymacrosapplication.view.lists.FoodPager
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeIntent
@@ -65,12 +67,26 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
-fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>()) {
+fun BarcodeScannerScreen(
+    viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
+    onOpenBottomSheet: (@Composable () -> Unit) -> Unit = {},
+    onCloseBottomSheet: () -> Unit = {},
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
 
     Log.d("Meow", "BarcodeScannerScreen")
+
+    LaunchedEffect(state.foodResult) {
+        val count = state.foodResult?.foods?.size ?: 0
+        if (count > 0) {
+            onOpenBottomSheet {
+                FoodSearchCountBottomSheet(count = count)
+            }
+        }
+    }
+
     Column(
         modifier =
             Modifier

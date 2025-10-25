@@ -1,6 +1,5 @@
 package com.example.mymacrosapplication
 
-import CarouselPageScreen
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -48,7 +47,8 @@ import com.example.mymacrosapplication.utils.NotificationHelper
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.BottomBarItems
 import com.example.mymacrosapplication.view.GoogleMapScreen
-import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
+import com.example.mymacrosapplication.view.alerts.BarcodeErrorBottomSheet
+import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
 import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -112,11 +112,11 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    viewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
+    barcodeViewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
     mapViewModel: MapViewModel = hiltViewModel<MapViewModel>(),
     onNotify: () -> Unit = {},
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val barcodeScreenState by barcodeViewModel.state.collectAsStateWithLifecycle()
     val items =
         listOf(
             BottomBarItems.Home,
@@ -174,7 +174,13 @@ fun MainScreen(
         ) {
             when (items[selectedItem]) {
                 is BottomBarItems.Home -> Greeting(name = "Home")
-                is BottomBarItems.Search -> BarcodeScannerScreen()
+                is BottomBarItems.Search ->
+                    CameraPermissionBottomSheet {
+                        BarcodeScannerScreen(
+                            onOpenBottomSheet = openBottomSheet,
+                            onCloseBottomSheet = closeBottomSheet,
+                        )
+                    }
                 is BottomBarItems.Profile -> {
                     GoogleMapScreen(
                         onOpenBottomSheet = openBottomSheet,
@@ -185,12 +191,14 @@ fun MainScreen(
         }
 
         // 🧱 Shared Error BottomSheet for errors
-        ErrorBottomSheet(
-            state.errorMessage,
-            state.exception,
-            onRetry = { viewModel.retryLastAction() },
-            onDismiss = { viewModel.clearError() },
-        )
+        if (barcodeScreenState.errorMessage != null) {
+            BarcodeErrorBottomSheet(
+                barcodeScreenState.errorMessage,
+                barcodeScreenState.exception,
+                onRetry = { barcodeViewModel.retryLastAction() },
+                onDismiss = { barcodeViewModel.clearError() },
+            )
+        }
 
         // 🟣 Shared BottomSheet composable — shows content when not null
         bottomSheetContent?.let { content ->
