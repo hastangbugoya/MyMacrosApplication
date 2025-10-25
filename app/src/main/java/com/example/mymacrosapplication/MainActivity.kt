@@ -66,8 +66,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-//                    MainScreen()
-                    MainScreenMaterial3()
+                    MainScreen()
+//                    MainScreenMaterial3()
                 }
             }
         }
@@ -158,7 +158,7 @@ fun MainScreen(
 
         // 🟣 Shared BottomSheet composable — shows content when not null
         bottomSheetContent?.let { content ->
-            androidx.compose.material3.ModalBottomSheet(
+            ModalBottomSheet(
                 onDismissRequest = { bottomSheetContent = null },
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
@@ -227,7 +227,6 @@ fun MainScreenMaterial3(
     viewModel: BarcodeViewModel = hiltViewModel(),
     mapViewModel: MapViewModel = hiltViewModel(),
 ) {
-    val barcodeState by viewModel.state.collectAsStateWithLifecycle()
     var selectedItem by remember { mutableIntStateOf(0) }
 
     // bottom sheet state & content
