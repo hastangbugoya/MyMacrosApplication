@@ -77,9 +77,6 @@ class BarcodeViewModel
                 _state.update { it.copy(errorMessage = "No query provided") }
                 return
             }
-//            if (_state.value.isLoading) {
-//                return
-//            }
             viewModelScope.launch {
                 Log.d("Meow", "SearchFood: $query entered viewModelScope")
                 try {

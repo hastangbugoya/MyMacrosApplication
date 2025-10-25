@@ -10,11 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,33 +23,28 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
+import com.example.mymacrosapplication.view.BottomBarItems
 import com.example.mymacrosapplication.view.GoogleMapScreen
-import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
 import com.example.mymacrosapplication.view.alerts.ErrorBottomSheet
-import com.example.mymacrosapplication.view.testscreens.GoogleMapTestScreen
 import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
-import com.google.android.gms.maps.MapView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -81,7 +72,13 @@ fun MainScreen(
     mapViewModel: MapViewModel = hiltViewModel<MapViewModel>(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val items = listOf("Home", "Search", "Profile")
+//    val items = listOf("Home", "Search", "Profile")
+    val items =
+        listOf(
+            BottomBarItems.Home,
+            BottomBarItems.Search,
+            BottomBarItems.Profile,
+        )
     var selectedItem by remember { mutableIntStateOf(0) }
 
     // --- 🟢 Bottom sheet state management ---
@@ -107,18 +104,18 @@ fun MainScreen(
         },
         bottomBar = {
             NavigationBar {
-                items.forEachIndexed { index, label ->
+                items.forEachIndexed { index, item ->
                     NavigationBarItem(
                         selected = selectedItem == index,
                         onClick = { selectedItem = index },
                         icon = {
-                            when (label) {
-                                "Home" -> Icon(Icons.Default.Home, contentDescription = null)
-                                "Search" -> Icon(Icons.Default.Search, contentDescription = null)
-                                "Profile" -> Icon(Icons.Default.Person, contentDescription = null)
-                            }
+                            Icon(
+                                modifier = Modifier.size(30.dp),
+                                painter = painterResource(id = item.icon),
+                                contentDescription = item.label,
+                            )
                         },
-                        label = { Text(label) },
+                        label = { Text(item.label) },
                     )
                 }
             }
@@ -131,15 +128,10 @@ fun MainScreen(
                     .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            when (selectedItem) {
-                0 -> Greeting(name = items[selectedItem])
-                1 -> {
-                    CameraPermissionBottomSheet {
-                        BarcodeScannerScreen(viewModel)
-                    }
-                }
-                else -> {
-                    // 🗺 GoogleMapScreen can now open or close the sheet via callbacks
+            when (items[selectedItem]) {
+                is BottomBarItems.Home -> Greeting(name = "Home")
+                is BottomBarItems.Search -> BarcodeScannerScreen()
+                is BottomBarItems.Profile -> {
                     GoogleMapScreen(
                         onOpenBottomSheet = openBottomSheet,
                         onCloseBottomSheet = closeBottomSheet,
@@ -176,21 +168,22 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleTopBar(
-    selectedItem: String,
+    selectedItem: BottomBarItems,
     onIconClick: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
             Text(
-                text = selectedItem,
+                text = selectedItem.label,
                 style = MaterialTheme.typography.titleLarge,
             )
         },
         navigationIcon = {
             IconButton(onClick = onIconClick) {
                 Icon(
-                    imageVector = Icons.Default.Android,
-                    contentDescription = "Click me",
+                    modifier = Modifier.size(30.dp),
+                    painter = painterResource(id = selectedItem.icon),
+                    contentDescription = selectedItem.label,
                 )
             }
         },
@@ -218,56 +211,5 @@ fun Greeting(
 fun GreetingPreview() {
     MyMacrosApplicationTheme {
         Greeting("Android")
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MainScreenMaterial3(
-    viewModel: BarcodeViewModel = hiltViewModel(),
-    mapViewModel: MapViewModel = hiltViewModel(),
-) {
-    var selectedItem by remember { mutableIntStateOf(0) }
-
-    // bottom sheet state & content
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var sheetContent by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
-    val scope = rememberCoroutineScope()
-
-    val openSheet: (@Composable () -> Unit) -> Unit = { content ->
-        sheetContent = content
-        scope.launch { sheetState.show() }
-    }
-    val closeSheet: () -> Unit = {
-        scope.launch { sheetState.hide() }
-    }
-
-    // The ModalBottomSheet composable wraps the content and shows sheetContent when triggered
-    ModalBottomSheet(
-        onDismissRequest = { scope.launch { sheetState.hide() } },
-        sheetState = sheetState,
-    ) {
-        // sheet UI, show sheetContent if present
-        sheetContent?.invoke()
-    }
-
-    // Place main scaffold under the sheet (ModalBottomSheet sits above the app UI)
-    Scaffold(
-        topBar = { SimpleTopBar(listOf("Home", "Search", "Map")[selectedItem]) },
-        bottomBar = { /* nav bar */ },
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
-            when (selectedItem) {
-                0 -> Greeting("Home")
-                1 -> CameraPermissionBottomSheet { BarcodeScannerScreen(viewModel) }
-                2 ->
-                    GoogleMapScreen(
-                        viewModel = mapViewModel,
-                        onOpenBottomSheet = openSheet,
-                        onCloseBottomSheet = closeSheet,
-                    )
-            }
-        }
-        // your ErrorBottomSheet or other overlays can go here
     }
 }
