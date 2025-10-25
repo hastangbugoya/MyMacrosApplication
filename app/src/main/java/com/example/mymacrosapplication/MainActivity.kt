@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -25,10 +27,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +53,7 @@ import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import com.google.android.gms.maps.MapView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -59,7 +66,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    MainScreen()
+//                    MainScreen()
+                    MainScreenMaterial3()
                 }
             }
         }
@@ -75,7 +83,20 @@ fun MainScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val items = listOf("Home", "Search", "Profile")
     var selectedItem by remember { mutableIntStateOf(0) }
-    LocalContext.current
+
+    // --- 🟢 Bottom sheet state management ---
+    var bottomSheetContent by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
+
+    // Function to open bottom sheet with content
+    val openBottomSheet: (@Composable () -> Unit) -> Unit = { content ->
+        bottomSheetContent = content
+    }
+
+    // Function to close bottom sheet
+    val closeBottomSheet: () -> Unit = {
+        bottomSheetContent = null
+    }
+
     Scaffold(
         modifier =
             Modifier
@@ -110,7 +131,6 @@ fun MainScreen(
                     .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-//            Greeting(name = items[selectedItem])
             when (selectedItem) {
                 0 -> Greeting(name = items[selectedItem])
                 1 -> {
@@ -118,22 +138,38 @@ fun MainScreen(
                         BarcodeScannerScreen(viewModel)
                     }
                 }
-
                 else -> {
-                    GoogleMapScreen()
+                    // 🗺 GoogleMapScreen can now open or close the sheet via callbacks
+                    GoogleMapScreen(
+                        onOpenBottomSheet = openBottomSheet,
+                        onCloseBottomSheet = closeBottomSheet,
+                    )
                 }
             }
         }
+
+        // 🧱 Shared Error BottomSheet for errors
         ErrorBottomSheet(
             state.errorMessage,
             state.exception,
-            onRetry = {
-                viewModel.retryLastAction()
-            },
-            onDismiss = {
-                viewModel.clearError()
-            },
+            onRetry = { viewModel.retryLastAction() },
+            onDismiss = { viewModel.clearError() },
         )
+
+        // 🟣 Shared BottomSheet composable — shows content when not null
+        bottomSheetContent?.let { content ->
+            androidx.compose.material3.ModalBottomSheet(
+                onDismissRequest = { bottomSheetContent = null },
+                containerColor = MaterialTheme.colorScheme.surface,
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    content()
+                }
+            }
+        }
     }
 }
 
@@ -182,5 +218,57 @@ fun Greeting(
 fun GreetingPreview() {
     MyMacrosApplicationTheme {
         Greeting("Android")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreenMaterial3(
+    viewModel: BarcodeViewModel = hiltViewModel(),
+    mapViewModel: MapViewModel = hiltViewModel(),
+) {
+    val barcodeState by viewModel.state.collectAsStateWithLifecycle()
+    var selectedItem by remember { mutableIntStateOf(0) }
+
+    // bottom sheet state & content
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var sheetContent by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
+    val scope = rememberCoroutineScope()
+
+    val openSheet: (@Composable () -> Unit) -> Unit = { content ->
+        sheetContent = content
+        scope.launch { sheetState.show() }
+    }
+    val closeSheet: () -> Unit = {
+        scope.launch { sheetState.hide() }
+    }
+
+    // The ModalBottomSheet composable wraps the content and shows sheetContent when triggered
+    ModalBottomSheet(
+        onDismissRequest = { scope.launch { sheetState.hide() } },
+        sheetState = sheetState,
+    ) {
+        // sheet UI, show sheetContent if present
+        sheetContent?.invoke()
+    }
+
+    // Place main scaffold under the sheet (ModalBottomSheet sits above the app UI)
+    Scaffold(
+        topBar = { SimpleTopBar(listOf("Home", "Search", "Map")[selectedItem]) },
+        bottomBar = { /* nav bar */ },
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            when (selectedItem) {
+                0 -> Greeting("Home")
+                1 -> CameraPermissionBottomSheet { BarcodeScannerScreen(viewModel) }
+                2 ->
+                    GoogleMapScreen(
+                        viewModel = mapViewModel,
+                        onOpenBottomSheet = openSheet,
+                        onCloseBottomSheet = closeSheet,
+                    )
+            }
+        }
+        // your ErrorBottomSheet or other overlays can go here
     }
 }
