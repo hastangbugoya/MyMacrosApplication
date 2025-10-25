@@ -72,7 +72,6 @@ fun MainScreen(
     mapViewModel: MapViewModel = hiltViewModel<MapViewModel>(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-//    val items = listOf("Home", "Search", "Profile")
     val items =
         listOf(
             BottomBarItems.Home,
