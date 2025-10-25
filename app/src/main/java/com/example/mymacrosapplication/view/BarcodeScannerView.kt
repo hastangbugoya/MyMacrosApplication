@@ -53,6 +53,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import com.example.mymacrosapplication.ui.theme.MainButtonColors
 import com.example.mymacrosapplication.view.input.SearchBar
+import com.example.mymacrosapplication.view.lists.FoodPager
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeIntent
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import com.google.android.datatransport.runtime.BuildConfig
@@ -174,83 +175,83 @@ fun BarcodeScannerScreen(viewModel: BarcodeViewModel = hiltViewModel<BarcodeView
             Modifier
                 .fillMaxWidth()
                 .padding(0.dp, 2.dp)
-
-        state.foodResult?.foods?.firstOrNull()?.let {
-            with(it) {
-                brandName?.let { text ->
-                    Text(
-                        text,
-                        modifier = myMod,
-                    )
-                }
-                subbrandName?.let { text ->
-                    Text(
-                        text,
-                        modifier = myMod,
-                    )
-                }
-                description?.let { text ->
-                    Text(
-                        text,
-                        modifier = myMod,
-                    )
-                }
-                Text(
-                    "Serving Size: $servingSize $servingSizeUnit ",
-                    modifier = myMod,
-                )
-                packageWeight?.let { text ->
-                    Text(
-                        text,
-                        modifier = myMod,
-                    )
-                }
-                if (!shortDescription.isNullOrEmpty()) {
-                    Text(
-                        shortDescription,
-                        modifier = myMod,
-                    )
-                }
-            }
-        }
-        val listState = rememberLazyListState()
-        val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-        state.foodResult?.foods?.firstOrNull()?.foodNutrients?.let { list ->
-            LazyColumn(
-                state = listState,
-                flingBehavior = flingBehavior,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(5.dp),
-            ) {
-                items(list) {
-                    with(it) {
-                        Card(
-                            modifier =
-                                Modifier
-                                    .padding(5.dp)
-                                    .fillMaxWidth()
-                                    .shadow(3.dp, RoundedCornerShape(8.dp))
-                                    .background(Color(0xfffce3d4)),
-                            shape = RoundedCornerShape(8.dp),
-                            colors =
-                                CardDefaults.cardColors(
-                                    containerColor = Color(0xfffce3d4),
-                                    contentColor = Color(0xff691b1e),
-                                    disabledContainerColor = Color(0xfffef2ec),
-                                    disabledContentColor = Color(0xffb77678),
-                                ),
-                        ) {
-                            Text(
-                                "$nutrientName($nutrientId): $value $unitName",
-                                modifier = Modifier.padding(10.dp),
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        FoodPager(state)
+//        state.foodResult?.foods?.firstOrNull()?.let {
+//            with(it) {
+//                brandName?.let { text ->
+//                    Text(
+//                        text,
+//                        modifier = myMod,
+//                    )
+//                }
+//                subbrandName?.let { text ->
+//                    Text(
+//                        text,
+//                        modifier = myMod,
+//                    )
+//                }
+//                description?.let { text ->
+//                    Text(
+//                        text,
+//                        modifier = myMod,
+//                    )
+//                }
+//                Text(
+//                    "Serving Size: $servingSize $servingSizeUnit ",
+//                    modifier = myMod,
+//                )
+//                packageWeight?.let { text ->
+//                    Text(
+//                        text,
+//                        modifier = myMod,
+//                    )
+//                }
+//                if (!shortDescription.isNullOrEmpty()) {
+//                    Text(
+//                        shortDescription,
+//                        modifier = myMod,
+//                    )
+//                }
+//            }
+//        }
+//        val listState = rememberLazyListState()
+//        val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+//        state.foodResult?.foods?.firstOrNull()?.foodNutrients?.let { list ->
+//            LazyColumn(
+//                state = listState,
+//                flingBehavior = flingBehavior,
+//                modifier =
+//                    Modifier
+//                        .fillMaxSize()
+//                        .padding(5.dp),
+//            ) {
+//                items(list) {
+//                    with(it) {
+//                        Card(
+//                            modifier =
+//                                Modifier
+//                                    .padding(5.dp)
+//                                    .fillMaxWidth()
+//                                    .shadow(3.dp, RoundedCornerShape(8.dp))
+//                                    .background(Color(0xfffce3d4)),
+//                            shape = RoundedCornerShape(8.dp),
+//                            colors =
+//                                CardDefaults.cardColors(
+//                                    containerColor = Color(0xfffce3d4),
+//                                    contentColor = Color(0xff691b1e),
+//                                    disabledContainerColor = Color(0xfffef2ec),
+//                                    disabledContentColor = Color(0xffb77678),
+//                                ),
+//                        ) {
+//                            Text(
+//                                "$nutrientName($nutrientId): $value $unitName",
+//                                modifier = Modifier.padding(10.dp),
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 }
 
