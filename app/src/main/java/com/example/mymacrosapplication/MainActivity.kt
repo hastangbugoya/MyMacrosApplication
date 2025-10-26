@@ -47,6 +47,7 @@ import com.example.mymacrosapplication.utils.NotificationHelper
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
 import com.example.mymacrosapplication.view.BottomBarItems
 import com.example.mymacrosapplication.view.GoogleMapScreen
+import com.example.mymacrosapplication.view.NutrientPreferences
 import com.example.mymacrosapplication.view.alerts.BarcodeErrorBottomSheet
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
 import com.example.mymacrosapplication.viewmodel.MapViewModel
@@ -173,7 +174,7 @@ fun MainScreen(
             contentAlignment = Alignment.Center,
         ) {
             when (items[selectedItem]) {
-                is BottomBarItems.Home -> Greeting(name = "Home")
+                is BottomBarItems.Home -> NutrientPreferences()
                 is BottomBarItems.Search ->
                     CameraPermissionBottomSheet {
                         BarcodeScannerScreen(

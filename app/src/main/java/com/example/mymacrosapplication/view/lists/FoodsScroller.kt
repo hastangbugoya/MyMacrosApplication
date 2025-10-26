@@ -2,7 +2,6 @@ package com.example.mymacrosapplication.view.lists
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,23 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.mymacrosapplication.model.nutrition.Food
@@ -105,48 +97,11 @@ fun FoodItemPage(food: Food) {
             Text(food.shortDescription!!, modifier = myMod)
         }
         food.foodNutrients?.forEach {
-            Text("${it.nutrientName} ${it.nutrientId}: ${it.value} ${it.unitName}", modifier = myMod)
+            Text(
+                "${it.nutrientName} ${it.nutrientId}: ${it.value} ${it.unitName}",
+                modifier = myMod,
+            )
         }
-        // scroll nutritional value
-//        val listState = rememberLazyListState()
-//        val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-//        food.foodNutrients?.let { list ->
-//            LazyColumn(
-//                state = listState,
-//                flingBehavior = flingBehavior,
-//                modifier =
-//                    Modifier
-//                        .fillMaxSize()
-//                        .padding(5.dp),
-//            ) {
-//                itemsIndexed(list) { index, nutrient ->
-//                    with(nutrient) {
-//                        Card(
-//                            modifier =
-//                                Modifier
-//                                    .padding(5.dp)
-//                                    .fillMaxWidth()
-//                                    .shadow(3.dp, RoundedCornerShape(8.dp))
-//                                    .background(Color(0xfffce3d4)),
-//                            shape = RoundedCornerShape(8.dp),
-//                            colors =
-//                                CardDefaults.cardColors(
-//                                    containerColor = Color(0xfffce3d4),
-//                                    contentColor = Color(0xff691b1e),
-//                                    disabledContainerColor = Color(0xfffef2ec),
-//                                    disabledContentColor = Color(0xffb77678),
-//                                ),
-//                        ) {
-//                            Text(
-//                                "$nutrientName($nutrientId): $value $unitName",
-//                                modifier = Modifier.padding(10.dp),
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-        // scroll nutritional value
     }
 }
 

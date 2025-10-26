@@ -3,14 +3,17 @@ package com.example.mymacrosapplication.viewmodel.nutrition
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mymacrosapplication.data.PreferencesRepository
 import com.example.mymacrosapplication.network.nutrition.NutritionRepository
 import com.google.android.datatransport.runtime.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -21,6 +24,7 @@ class BarcodeViewModel
     @Inject
     constructor(
         private val repository: NutritionRepository,
+        private val prefsNutrients: PreferencesRepository,
     ) : ViewModel() {
         val intent = Channel<BarcodeIntent>(Channel.UNLIMITED)
         private val _state = MutableStateFlow(BarcodeViewState())
@@ -30,6 +34,14 @@ class BarcodeViewModel
 
         val key = com.example.mymacrosapplication.BuildConfig.USDA_FDA_API_KEY
         private var barcodeLocked = AtomicBoolean(false)
+
+        // Observe the nutrient list from DataStore
+        val nutrients =
+            prefsNutrients.nutrientListFlow.stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList(),
+            )
 
         fun setBarcode(value: String?) {
             if (!barcodeLocked.compareAndSet(false, true)) {

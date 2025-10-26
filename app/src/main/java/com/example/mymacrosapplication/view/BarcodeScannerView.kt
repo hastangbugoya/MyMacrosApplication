@@ -169,10 +169,9 @@ fun BarcodeScannerScreen(
             Text("Barcode: 812130020861")
         }
 
-        val myMod =
-            Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 2.dp)
+        Modifier
+            .fillMaxWidth()
+            .padding(0.dp, 2.dp)
         FoodPager(state)
     }
 }
