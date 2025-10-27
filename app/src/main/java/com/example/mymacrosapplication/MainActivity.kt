@@ -1,14 +1,20 @@
 package com.example.mymacrosapplication
 
 import android.Manifest
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +50,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.mymacrosapplication.service.AudioPlayerService
 import com.example.mymacrosapplication.ui.theme.MyMacrosApplicationTheme
 import com.example.mymacrosapplication.utils.NotificationHelper
 import com.example.mymacrosapplication.view.BarcodeScannerScreen
@@ -50,6 +59,7 @@ import com.example.mymacrosapplication.view.GoogleMapScreen
 import com.example.mymacrosapplication.view.NutrientPreferences
 import com.example.mymacrosapplication.view.alerts.BarcodeErrorBottomSheet
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
+import com.example.mymacrosapplication.view.mediaplayer.AudioPlayerPanel
 import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,7 +82,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     MainScreen()
-//                    MainScreenMaterial3()
                 }
             }
         }
@@ -113,10 +122,11 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    barcodeViewModel: BarcodeViewModel = hiltViewModel<BarcodeViewModel>(),
-    mapViewModel: MapViewModel = hiltViewModel<MapViewModel>(),
-    onNotify: () -> Unit = {},
+    barcodeViewModel: BarcodeViewModel = hiltViewModel(),
+    mapViewModel: MapViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val audioServiceConnection = rememberAudioPlayerService(context)
     val barcodeScreenState by barcodeViewModel.state.collectAsStateWithLifecycle()
     val items =
         listOf(
@@ -129,48 +139,48 @@ fun MainScreen(
     // --- 🟢 Bottom sheet state management ---
     var bottomSheetContent by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
 
-    // Function to open bottom sheet with content
     val openBottomSheet: (@Composable () -> Unit) -> Unit = { content ->
         bottomSheetContent = content
     }
-
-    // Function to close bottom sheet
-    val closeBottomSheet: () -> Unit = {
-        bottomSheetContent = null
-    }
+    val closeBottomSheet: () -> Unit = { bottomSheetContent = null }
 
     Scaffold(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(Color(0xfffef2ec)),
-        topBar = {
-            SimpleTopBar(items[selectedItem])
-        },
+        modifier = Modifier.fillMaxSize().background(Color(0xfffef2ec)),
+        topBar = { SimpleTopBar(items[selectedItem]) },
         bottomBar = {
-            NavigationBar {
-                items.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectedItem == index,
-                        onClick = { selectedItem = index },
-                        icon = {
-                            Icon(
-                                modifier = Modifier.size(30.dp),
-                                painter = painterResource(id = item.icon),
-                                contentDescription = item.label,
-                            )
-                        },
-                        label = { Text(item.label) },
-                    )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // ✅ AudioPlayerPanel INSIDE composable hierarchy
+                AudioPlayerPanel(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(vertical = 6.dp),
+                    title = "Now Playing: Sample Song",
+                    artist = "Demo Artist",
+                    onPlayPause = { audioServiceConnection?.playPause() },
+                )
+                NavigationBar {
+                    items.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            selected = selectedItem == index,
+                            onClick = { selectedItem = index },
+                            icon = {
+                                Icon(
+                                    modifier = Modifier.size(30.dp),
+                                    painter = painterResource(id = item.icon),
+                                    contentDescription = item.label,
+                                )
+                            },
+                            label = { Text(item.label) },
+                        )
+                    }
                 }
             }
         },
     ) { innerPadding ->
         Box(
-            modifier =
-                Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
+            modifier = Modifier.padding(innerPadding).fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             when (items[selectedItem]) {
@@ -182,16 +192,15 @@ fun MainScreen(
                             onCloseBottomSheet = closeBottomSheet,
                         )
                     }
-                is BottomBarItems.Profile -> {
+                is BottomBarItems.Profile ->
                     GoogleMapScreen(
                         onOpenBottomSheet = openBottomSheet,
                         onCloseBottomSheet = closeBottomSheet,
                     )
-                }
             }
         }
 
-        // 🧱 Shared Error BottomSheet for errors
+        // 🔧 Error bottomsheet
         if (barcodeScreenState.errorMessage != null) {
             BarcodeErrorBottomSheet(
                 barcodeScreenState.errorMessage,
@@ -201,16 +210,13 @@ fun MainScreen(
             )
         }
 
-        // 🟣 Shared BottomSheet composable — shows content when not null
+        // 🟢 Dynamic bottomsheet
         bottomSheetContent?.let { content ->
             ModalBottomSheet(
                 onDismissRequest = { bottomSheetContent = null },
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     content()
                 }
             }
@@ -265,4 +271,36 @@ fun GreetingPreview() {
     MyMacrosApplicationTheme {
         Greeting("Android")
     }
+}
+
+@Composable
+fun rememberAudioPlayerService(context: Context): AudioPlayerService? {
+    var service: AudioPlayerService? by remember { mutableStateOf(null) }
+
+    DisposableEffect(Unit) {
+        val connection =
+            object : ServiceConnection {
+                override fun onServiceConnected(
+                    name: ComponentName?,
+                    binder: IBinder?,
+                ) {
+                    val b = binder as AudioPlayerService.LocalBinder
+                    service = b.getService()
+                }
+
+                override fun onServiceDisconnected(name: ComponentName?) {
+                    service = null
+                }
+            }
+
+        val intent = Intent(context, AudioPlayerService::class.java)
+        context.startService(intent) // 🔥 Ensures service actually runs
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
+        onDispose {
+            context.unbindService(connection)
+        }
+    }
+
+    return service
 }

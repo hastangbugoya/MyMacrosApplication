@@ -32,6 +32,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyC2s-ZMnSSIU3at93hIei0OVnxYDmimfYA" />
+        <service android:name=".service.AudioPlayerService" />
     </application>
 
 </manifest>
