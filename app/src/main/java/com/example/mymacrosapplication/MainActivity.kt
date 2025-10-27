@@ -59,6 +59,7 @@ import com.example.mymacrosapplication.view.GoogleMapScreen
 import com.example.mymacrosapplication.view.NutrientPreferences
 import com.example.mymacrosapplication.view.alerts.BarcodeErrorBottomSheet
 import com.example.mymacrosapplication.view.alerts.CameraPermissionBottomSheet
+import com.example.mymacrosapplication.view.mediaplayer.AudioFileListScreen
 import com.example.mymacrosapplication.view.mediaplayer.AudioPlayerPanel
 import com.example.mymacrosapplication.viewmodel.MapViewModel
 import com.example.mymacrosapplication.viewmodel.nutrition.BarcodeViewModel
@@ -183,6 +184,7 @@ fun MainScreen(
             BottomBarItems.Home,
             BottomBarItems.Search,
             BottomBarItems.Profile,
+            BottomBarItems.AudioPlayer,
         )
     var selectedItem by remember { mutableIntStateOf(0) }
 
@@ -247,6 +249,13 @@ fun MainScreen(
                         onOpenBottomSheet = openBottomSheet,
                         onCloseBottomSheet = closeBottomSheet,
                     )
+                is BottomBarItems.AudioPlayer -> {
+                    AudioFileListScreen(
+                        onFileClick = {
+                            android.util.Log.d("Meow", "File clicked: $it")
+                        },
+                    )
+                }
             }
         }
 
