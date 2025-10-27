@@ -18,4 +18,6 @@ sealed class BottomBarItems(
     object Search : BottomBarItems("Search", R.drawable.search, "search")
 
     object Profile : BottomBarItems("Profile", R.drawable.user, "profile")
+
+    object AudioPlayer : BottomBarItems("AudioPlayer", R.drawable.music_alt, "audioPlayer")
 }

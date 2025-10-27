@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         installSplashScreen()
         checkNotificationPermission()
+        readAudioPermission()
         setContent {
             MyMacrosApplicationTheme {
                 Surface(
@@ -103,13 +104,62 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun readAudioPermission() {
+        val context = this
+        val activity = this
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(Manifest.permission.READ_MEDIA_AUDIO),
+                    100,
+                )
+            }
+        } else {
+            // Android 12 and below
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    101,
+                )
+            }
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
+        when (requestCode) {
+            1001 -> { // handle notification permissions
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
+                    // ✅ Test notification
+                    notificationHelper.showNotification("Permission Granted", "Notifications enabled!")
+                }
+            }
+            1002 -> { // handle audio media permissions
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    notificationHelper.showNotification("Permission Granted", "Audio media enabled!")
+                } else {
+                    //  Permission denied
+                }
+            }
+            1003 -> { /* handle camera */ }
+        }
         if (requestCode == 1001 && grantResults.isNotEmpty() &&
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
