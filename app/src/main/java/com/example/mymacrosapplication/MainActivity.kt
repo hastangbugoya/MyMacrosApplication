@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -210,7 +211,7 @@ fun MainScreen(
                             .padding(vertical = 6.dp),
                     title = "Now Playing: Sample Song",
                     artist = "Demo Artist",
-                    onPlayPause = { audioServiceConnection?.playPause() },
+                    audioUri = Uri.parse("android.resource://${context.packageName}/raw/sample_song"),
                 )
                 NavigationBar {
                     items.forEachIndexed { index, item ->
@@ -251,9 +252,9 @@ fun MainScreen(
                     )
                 is BottomBarItems.AudioPlayer -> {
                     AudioFileListScreen(
-                        onFileClick = {
-                            android.util.Log.d("Meow", "File clicked: $it")
-                        },
+//                        onFileClick = {
+//                            android.util.Log.d("Meow", "File clicked: $it")
+//                        },
                     )
                 }
             }
@@ -353,7 +354,7 @@ fun rememberAudioPlayerService(context: Context): AudioPlayerService? {
             }
 
         val intent = Intent(context, AudioPlayerService::class.java)
-        context.startService(intent) // 🔥 Ensures service actually runs
+        context.startService(intent) // ensures service runs
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
 
         onDispose {
