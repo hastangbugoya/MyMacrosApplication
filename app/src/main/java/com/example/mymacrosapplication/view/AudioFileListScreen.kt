@@ -101,7 +101,7 @@ fun AudioFileListScreen(modifier: Modifier = Modifier) {
 
                         val serviceIntent =
                             Intent(context, AudioPlayerService::class.java).apply {
-                                putExtra("AUDIO_URI", file.contentUri.toString())
+                                putExtra("AUDIO_URI", file.contentUri)
                             }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             context.startForegroundService(serviceIntent)

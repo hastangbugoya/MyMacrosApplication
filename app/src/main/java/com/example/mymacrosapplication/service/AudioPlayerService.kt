@@ -43,9 +43,16 @@ class AudioPlayerService : Service() {
     ): Int {
         android.util.Log.d("Meow", "AudioPlayerService> onStartCommand> Attempting to play URI: $intent")
 
-        val uri = intent?.getParcelableExtra<Uri>("AUDIO_URI")
+        val uri =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent?.getParcelableExtra("AUDIO_URI", Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent?.getParcelableExtra<Uri>("AUDIO_URI")
+            }
+
         if (uri != null) {
-            android.util.Log.d("Meow", "AudioPlayerService> onStartCommand> Received URI: $uri")
+            android.util.Log.d("Meow", "AudioPlayerService> onStartCommand> Received URI: $uri (${uri?.javaClass?.name})")
             playAudio(uri)
         } else {
             android.util.Log.d("Meow", "AudioPlayerService> onStartCommand> No URI received — maybe already playing")
