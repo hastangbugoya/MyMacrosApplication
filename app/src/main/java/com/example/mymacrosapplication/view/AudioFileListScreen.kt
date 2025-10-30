@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -96,11 +97,17 @@ fun AudioFileListScreen(modifier: Modifier = Modifier) {
                     file = file,
                     isPlaying = file == currentlyPlaying,
                     onClick = {
+                        android.util.Log.d("Meow", "AudioFileListScreen> File clicked: ${file.contentUri}")
+
                         val serviceIntent =
                             Intent(context, AudioPlayerService::class.java).apply {
                                 putExtra("AUDIO_URI", file.contentUri.toString())
                             }
-                        context.startService(serviceIntent)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            context.startForegroundService(serviceIntent)
+                        } else {
+                            context.startService(serviceIntent)
+                        }
                         currentlyPlaying = file
                     },
                 )

@@ -15,6 +15,9 @@
 
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
 
     <application
         android:name=".MyMacrosClass"
@@ -38,8 +41,12 @@
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
+            android:foregroundServiceType="mediaPlayback"
             android:value="AIzaSyC2s-ZMnSSIU3at93hIei0OVnxYDmimfYA" />
-        <service android:name=".service.AudioPlayerService" />
+        <service
+            android:name=".service.AudioPlayerService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
     </application>
 
 </manifest>

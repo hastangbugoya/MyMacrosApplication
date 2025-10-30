@@ -122,6 +122,9 @@ dependencies {
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
+    implementation("androidx.media:media:1.7.0")
+    implementation("androidx.core:core-ktx:1.13.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

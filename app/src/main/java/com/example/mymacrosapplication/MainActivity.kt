@@ -197,22 +197,14 @@ fun MainScreen(
     }
     val closeBottomSheet: () -> Unit = { bottomSheetContent = null }
 
+    val perm = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO)
+    android.util.Log.d("Meow", "MainScreen > AudioPlayerService> Permission check: $perm")
+
     Scaffold(
         modifier = Modifier.fillMaxSize().background(Color(0xfffef2ec)),
         topBar = { SimpleTopBar(items[selectedItem]) },
         bottomBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                // ✅ AudioPlayerPanel INSIDE composable hierarchy
-                AudioPlayerPanel(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(vertical = 6.dp),
-                    title = "Now Playing: Sample Song",
-                    artist = "Demo Artist",
-                    audioUri = Uri.parse("android.resource://${context.packageName}/raw/sample_song"),
-                )
                 NavigationBar {
                     items.forEachIndexed { index, item ->
                         NavigationBarItem(
@@ -251,11 +243,7 @@ fun MainScreen(
                         onCloseBottomSheet = closeBottomSheet,
                     )
                 is BottomBarItems.AudioPlayer -> {
-                    AudioFileListScreen(
-//                        onFileClick = {
-//                            android.util.Log.d("Meow", "File clicked: $it")
-//                        },
-                    )
+                    AudioFileListScreen()
                 }
             }
         }
@@ -313,30 +301,29 @@ fun SimpleTopBar(
             ),
     )
 }
-
-@Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyMacrosApplicationTheme {
-        Greeting("Android")
-    }
-}
+//
+// @Composable
+// fun Greeting(
+//    name: String,
+//    modifier: Modifier = Modifier,
+// ) {
+//    Text(
+//        text = "Hello $name!",
+//        modifier = modifier,
+//    )
+// }
+//
+// @Preview(showBackground = true)
+// @Composable
+// fun GreetingPreview() {
+//    MyMacrosApplicationTheme {
+//        Greeting("Android")
+//    }
+// }
 
 @Composable
 fun rememberAudioPlayerService(context: Context): AudioPlayerService? {
     var service: AudioPlayerService? by remember { mutableStateOf(null) }
-
     DisposableEffect(Unit) {
         val connection =
             object : ServiceConnection {
@@ -346,15 +333,21 @@ fun rememberAudioPlayerService(context: Context): AudioPlayerService? {
                 ) {
                     val b = binder as AudioPlayerService.LocalBinder
                     service = b.getService()
+                    android.util.Log.d("Meow", "UI> rememberAudioPlayerService> Service connected")
                 }
 
                 override fun onServiceDisconnected(name: ComponentName?) {
                     service = null
+                    android.util.Log.d("Meow", "UI> rememberAudioPlayerService> Service disconnected")
                 }
             }
 
         val intent = Intent(context, AudioPlayerService::class.java)
-        context.startService(intent) // ensures service runs
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
 
         onDispose {
